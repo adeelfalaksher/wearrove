@@ -16,7 +16,7 @@ The previous event's [official gallery](https://youcam-api.devpost.com/project-g
 
 The sponsor's [round-two announcement](https://www.perfectcorp.com/business/news/YouCam-API-Hackthon-eCommerce) also discusses the first-round winners. The common lesson is a specific audience, a useful output and evidence of an end-to-end implementation. These observations do not establish why each judge selected each winner, or promise a similar result here.
 
-## What was weak in Borrowloom
+## What was weak in Wearrove
 
 The earlier first screen was an editorial slogan and an outfit photograph. It did not quickly explain who shares clothes, how someone joins, or what happens after a preview. Its repeated small captions, muted berry accent, serif type and large quiet sections made the service harder to distinguish from a concept site. A user also had to open individual garments to check a date window.
 
@@ -49,7 +49,7 @@ The design-taste skill dealt `hero-object`, seed `2071387760`, and the app direc
 
 The user reports receiving both an API key and a secret. The [official quick start](https://docs.perfectcorp.com/develop/quick_start_guide) and [FAQ](https://docs.perfectcorp.com/develop/faq) specify the API key as the Bearer credential for these API requests. Clothing v4 does not require us to collect an additional secret for that authentication flow. A credential should be entered directly into encrypted server settings, never into chat, source, a screenshot or a public client variable.
 
-Borrowloom already has a dedicated database and working server. No Supabase project is required to address this design change. The user's two existing Supabase projects remain untouched. Reusing one would require a separate schema, scoped permissions and tests protecting both products; avoiding that migration keeps the existing data isolated without an unnecessary release risk. Product screens do not discuss hosting implementation, while technical documentation remains accurate.
+Wearrove already has a dedicated database and working server. No Supabase project is required to address this design change. The user's two existing Supabase projects remain untouched. Reusing one would require a separate schema, scoped permissions and tests protecting both products; avoiding that migration keeps the existing data isolated without an unnecessary release risk. Product screens do not discuss hosting implementation, while technical documentation remains accurate.
 
 ## Evidence still required
 

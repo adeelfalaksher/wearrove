@@ -12,7 +12,7 @@ export function opaque(value) { return typeof value === 'string' && /^[a-f0-9]{6
 export function trustedMutation(request, env) {
   const origins=String(env.SITE_ORIGINS||'').split(',').map(x=>x.trim()).filter(Boolean);
   const origin=request.headers.get('Origin');
-  if (!origin || !origins.includes(origin) || request.headers.get('X-Borrowloom')!=='1') throw new Problem('ORIGIN_REJECTED','Open Borrowloom in its own tab and try again.',403);
+  if (!origin || !origins.includes(origin) || (request.headers.get('X-Wearrove')!=='1'&&request.headers.get('X-Borrowloom')!=='1')) throw new Problem('ORIGIN_REJECTED','Open Wearrove in its own tab and try again.',403);
 }
 
 export async function readJSON(request, limit=800000) {

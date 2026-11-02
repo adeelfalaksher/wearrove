@@ -1,11 +1,11 @@
-name = "borrowloom-api"
+name = "wearrove-api"
 main = "src/worker.mjs"
 compatibility_date = "2026-10-30"
 workers_dev = true
 
 [[d1_databases]]
 binding = "DB"
-database_name = "borrowloom"
+database_name = "wearrove"
 database_id = "REPLACE_WITH_YOUR_OWN_D1_DATABASE_ID"
 
 [vars]

@@ -1,20 +1,20 @@
-# Borrowloom
+# Wearrove
 
-**Tagline:** Borrow the look. Keep the dates, care and privacy clear.
+**Tagline:** Try the look. Compare the details. Borrow from your circle.
 
 **Category:** Apparel VTO / eCommerce VTO
 
-**Website:** https://borrowloom.vercel.app/
+**Website:** https://wearrove.vercel.app/
 
-**Source:** https://github.com/adeelfalaksher900-creator/borrowloom
+**Source:** https://github.com/adeelfalaksher900-creator/wearrove
 
-**Draft status:** Text prepared here; not yet saved in Devpost. Event registration is incomplete and blocks project creation. Secure server credential configuration and live inference verification remain release gates. The user reports obtaining an API key. Final screenshots and the public 1–3 minute video are reserved for the separately approved media phase.
+**Draft status:** Text prepared here; not yet saved in Devpost. Event registration is incomplete and blocks project creation. The encrypted server credential is configured. Live inference verification and event registration remain release gates. Final screenshots and the public 1–3 minute video are reserved for the separately approved media phase.
 
 ## Inspiration
 
 The dress for a wedding might already be in a friend's wardrobe. The difficult part is often everything around it: finding the photo in a chat, checking the measurements, agreeing the dates, and knowing whether the piece is back and ready for someone else.
 
-Virtual try-on helps someone imagine an outfit. It does not coordinate a real loan. Borrowloom connects that moment of visual consideration to a private, practical borrowing workflow.
+Virtual try-on helps someone imagine an outfit. It does not coordinate a real loan. Wearrove connects that moment of visual consideration to a private, practical borrowing workflow.
 
 Research on clothing libraries and rental services points to occasional-use opportunities, but also barriers around availability, trust and day-to-day operations. We narrowed the product to existing personal circles. We do not assume that every rental is sustainable or claim that a preview proves physical fit.
 
@@ -28,11 +28,13 @@ The borrower requests a date window. The owner confirms or declines, records col
 
 People can save an account recovery code and export their records. Owners can replace invitation links, remove a member after active requests are resolved, edit garment details with stale-version protection, and archive a piece that has no confirmed active borrowing.
 
+Saved pieces persist privately. Users compare up to three choices using measurements, condition, care time and an actual availability check. A finished preview has side-by-side and slider views while its original portrait is still available in that visit. A manual detail checklist records the user’s observations and can be exported as a private JSON review; it is not automated identity or garment-fidelity certification.
+
 The optional example wardrobe is clearly labelled. Its garments and photographs are fictional and are not offered for real-world borrowing.
 
 ## How we built it
 
-Borrowloom uses a multipage frontend with semantic HTML, native dialogs, original responsive CSS and small JavaScript modules. It has a public homepage, wardrobes, garment details, borrowing history, a fitting room, account controls, a borrowing guide and a privacy page.
+Wearrove uses a multipage frontend with semantic HTML, native dialogs, original responsive CSS and small JavaScript modules. It has a public homepage, wardrobes, garment details, borrowing history, a fitting room, account controls, a borrowing guide and a privacy page.
 
 Vercel serves the website and forwards same-origin API requests to a dedicated Cloudflare Worker. A separate D1 database stores wardrobe membership, garment details, booking state and audit events. SQLite triggers enforce date conflicts inside storage, so a stale screen or simultaneous approval cannot decide availability.
 
@@ -40,7 +42,7 @@ The YouCam adapter registers the two input files, uploads them to signed storage
 
 Provider errors pause polling rather than leaving an endless spinner. An explicit recheck retrieves the same task. Results expire after 24 hours, can be removed earlier, and are followed by a provider deletion request with scheduled retries.
 
-**Current integration verification:** automated provider tests use mocked responses to verify the protocol and failure handling. A live YouCam inference is not yet verified because the server credential is not configured. The deployed fitting room reports unavailability honestly and does not fabricate an output. This draft must be updated with the observed live result before judging.
+**Current integration verification:** automated provider tests use mocked responses to verify the protocol and failure handling. A live YouCam inference is not yet verified until the newly configured server credential is verified in a real task. The deployed fitting room reports unavailability honestly and does not fabricate an output. This draft must be updated with the observed live result before judging.
 
 ## Challenges
 
@@ -52,8 +54,8 @@ Private inference creates its own races. Deleting a preview during upload must n
 
 - A real deployed borrowing workflow, including photo upload, invitation-based membership, approval, collection, actual return and event history.
 - Server- and storage-enforced authorization and date integrity, with isolated identities tested through the deployed interface.
-- 35 automated tests covering domain rules, actual SQLite constraints, API permissions, recovery concurrency, exports and mocked provider lifecycle failures.
-- A coherent product interface with original garment imagery, separate create/join paths, date-aware discovery, useful empty and error states and labelled phone navigation. Desktop, tablet and phone renders were reviewed after correcting stretched mobile photographs.
+- 44 automated tests covering domain rules, actual SQLite constraints, API permissions, recovery concurrency, exports and mocked provider lifecycle failures.
+- A complete responsive product interface with a shared iOS-inspired surface system, clear create/join paths, private saved-piece comparison and a review workflow. Updated release viewport checks must be recorded separately from the previous design.
 - Public source, an MIT license, diagrams, setup instructions, deployment guidance and an honest verification record.
 
 These are engineering observations, not evidence of adoption, carbon savings or a measured improvement in borrowing behaviour.

@@ -1,4 +1,4 @@
-# Borrowloom research and decision record
+# Wearrove research and decision record
 
 Research date: 30 October 2026. This is a new project for the YouCam API Skin AI & eCommerce VTO Hackathon. No existing Adeel project is reused or modified.
 
@@ -25,7 +25,7 @@ These are design assessments, not measured user outcomes or probabilities of win
 
 ## Selected audience and advantage
 
-Borrowloom is for a small invitation-only wardrobe shared among people who already know each other: occasionwear circles, community collections and small lending groups. It connects **date availability → visual consideration → a request → owner approval → collection → return**. The virtual image does not reserve the garment. An approved loan and its care day do.
+Wearrove is for a small invitation-only wardrobe shared among people who already know each other: occasionwear circles, community collections and small lending groups. It connects **date availability → visual consideration → a request → owner approval → collection → return**. The virtual image does not reserve the garment. An approved loan and its care day do.
 
 The competitive hypothesis is that putting appearance previews next to actual availability and the owner-controlled borrowing process reduces the steps between interest and a usable request. This hypothesis needs user testing. No avoided purchases, reduced returns, money saved or carbon benefit is claimed.
 
@@ -41,7 +41,7 @@ The scope excludes payments, deposits, shipping, automated eligibility decisions
 
 Bounded Devpost and GitHub searches reviewed wardrobe reuse, resale, rental, adaptive clothing, travel and salon workflows. Relevant examples: [Wardrobe Connect](https://devpost.com/software/wardrobe-connect-try-it-on), [Talk Me Out of It](https://devpost.com/software/talk-me-out-of-it), [LookLock](https://devpost.com/software/looklock-kda9my), [InclusiFit](https://devpost.com/software/inclusifit), and the [previous event gallery](https://youcam-api.devpost.com/project-gallery). Search absence is not proof that a similar product does not exist.
 
-The [sponsor's account of prior winners](https://www.perfectcorp.com/business/news/YouCam-API-Hackthon-eCommerce) emphasizes focused consumer problems, coherent implementation and clear demonstrations. Borrowloom should be evaluated on its own evidence, rather than an assumed formula for winning.
+The [sponsor's account of prior winners](https://www.perfectcorp.com/business/news/YouCam-API-Hackthon-eCommerce) emphasizes focused consumer problems, coherent implementation and clear demonstrations. Wearrove should be evaluated on its own evidence, rather than an assumed formula for winning.
 
 ## Technical references
 

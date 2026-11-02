@@ -1,6 +1,6 @@
 # Asset provenance
 
-`public/assets/hero.png`, `dress.png`, `jacket.png` and `blouse.png` were generated on 30 October 2026 specifically as original editorial and fictional example-garment imagery for Borrowloom. They depict no offered physical inventory and are not YouCam outputs. No competitor product photograph or Mobbin screenshot is bundled in this project.
+`public/assets/hero.png`, `dress.png`, `jacket.png` and `blouse.png` were generated on 30 October 2026 specifically as original editorial and fictional example-garment imagery for Wearrove. They depict no offered physical inventory and are not YouCam outputs. No competitor product photograph or Mobbin screenshot is bundled in this project.
 
 The optional example portrait comes from the official YouCam clothing API documentation: `https://plugins-media.makeupar.com/strapi/assets/clothes_03_cccd5d4803.jpeg`. It is identified as YouCam's example whenever selected. It is fetched only on that explicit selection and is not presented as a user or team member.
 
@@ -17,3 +17,7 @@ Design references are linked in `DESIGN.md`. Screens were studied for hierarchy,
 ## Display formats, 2 November 2026
 
 The four original PNG assets remain unchanged. For website display, Sharp generated 640 px WebP versions and versions at up to 1200 px without enlargement, using quality 86 and 88 respectively. Eight WebP variants total 409,294 bytes, compared with 8,391,125 bytes for the four original PNG files. This is an asset-size comparison, not a page-speed measurement. Original image URLs remain available for provider inputs. These derivatives are application assets, not a submission image gallery.
+
+## Locally served documentation sample
+
+`public/assets/youcam-example.jpg` is an unchanged copy of the documented YouCam clothing example portrait linked above, obtained through the browser from that official source. It is identified as an example in the interface. The sample button loads it from the application’s own origin, then applies the same browser normalization and consented request path as a user upload. The application’s private generated results are not public marketing assets.

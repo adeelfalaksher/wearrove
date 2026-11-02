@@ -8,6 +8,7 @@ function setup(){
   db.prepare('INSERT INTO users(id,name,created_at) VALUES(?,?,0)').run(user.id,user.name);
   db.prepare('INSERT INTO circles(id,owner_id,title,care_days,invite_hash,created_at) VALUES(?,?,?,1,?,0)').run(cid,user.id,'Wardrobe','hash');
   db.prepare('INSERT INTO garments(id,circle_id,title,category,size_label,photo,photo_type,created_at) VALUES(?,?,?,?,?,?,?,0)').run(gid,cid,'Blazer','outer','M',photo.bytes,photo.type);
+  db.prepare('INSERT INTO members(circle_id,user_id,display_name,joined_at) VALUES(?,?,?,0)').run(cid,user.id,user.name);
   const g={id:gid,version:1,title:'Blazer',category:'outer',photo:Array.from(photo.bytes)};
   let taskCalls=0,fileCalls=0;const signedHeaders=[],deletions=[];
   e.YOUCAM_API_KEY='test-only';e.FETCH=async(url,options={})=>{
@@ -53,4 +54,19 @@ test('cleanup rotates through failing jobs so earlier failures do not starve lat
   const f=setup();f.e.deleteFails=true;
   for(let i=0;i<12;i++)f.db.prepare("INSERT INTO tryon_jobs(id,user_id,garment_id,garment_version,garment_title,idempotency_key,input_digest,provider_id,status,cost,created_at,expires_at,cleanup_pending) VALUES(?,?,?,1,'Blazer',?,'hash',?,'cancelled',2,?,?,1)").run(crypto.randomUUID(),f.user.id,f.g.id,crypto.randomUUID(),'delete-'+i,Date.now()+i,Date.now()+100000);
   await cleanup(f.e);assert.equal(f.deletions.length,10);await cleanup(f.e);assert.equal(new Set(f.deletions).size,12);f.e.DB.close();
+});
+
+test('concurrent identical inputs with different page keys reserve and create only one provider task',async()=>{
+  const f=setup(),fetchMock=f.e.FETCH;let entered=0,release;const gate=new Promise(resolve=>{release=resolve;});
+  f.e.FETCH=async(url,options)=>{if(url.includes('/client/credit')){if(++entered===2)release();await gate;}return fetchMock(url,options);};
+  const jobs=await Promise.all([startPreview(f.e,f.user,f.g,{idempotency_key:crypto.randomUUID()},f.photo),startPreview(f.e,f.user,f.g,{idempotency_key:crypto.randomUUID()},f.photo)]);
+  assert.equal(new Set(jobs.map(j=>j.id)).size,1);assert.equal(f.taskCalls,1);assert.equal(f.db.prepare("SELECT units FROM budgets WHERE key='total'").get().units,2);f.e.DB.close();
+});
+
+test('membership revoked during provider preflight cannot reserve or upload a new preview',async()=>{
+  const f=setup(),cid=f.db.prepare('SELECT circle_id FROM garments WHERE id=?').get(f.g.id).circle_id,borrower={id:crypto.randomUUID(),name:'Borrower'};
+  f.db.prepare('INSERT INTO users(id,name,created_at) VALUES(?,?,0)').run(borrower.id,borrower.name);f.db.prepare('INSERT INTO members(circle_id,user_id,display_name,joined_at) VALUES(?,?,?,0)').run(cid,borrower.id,borrower.name);
+  const fetchMock=f.e.FETCH;f.e.FETCH=async(url,options)=>{if(url.includes('/credit/feature-cost'))f.db.prepare('DELETE FROM members WHERE circle_id=? AND user_id=?').run(cid,borrower.id);return fetchMock(url,options);};
+  await assert.rejects(startPreview(f.e,borrower,f.g,{idempotency_key:crypto.randomUUID()},f.photo),e=>e.code==='GARMENT_CHANGED');
+  assert.equal(f.taskCalls,0);assert.equal(f.signedHeaders.length,0);assert.equal(f.db.prepare('SELECT COUNT(*) n FROM tryon_jobs').get().n,0);f.e.DB.close();
 });
