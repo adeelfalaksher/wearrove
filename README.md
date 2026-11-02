@@ -2,6 +2,8 @@
 
 ### Good pieces deserve another occasion.
 
+[Open Borrowloom](https://borrowloom.vercel.app/) · [Borrowing guide](https://borrowloom.vercel.app/guide) · [Verification record](docs/VERIFICATION.md)
+
 Borrowloom is an invitation-only wardrobe for friends sharing occasionwear. It combines real borrowing dates and owner-controlled handovers with an optional private **YouCam clothing v4** visual preview.
 
 ![A shared rail with a burgundy dress, navy jacket and ivory blouse](public/assets/hero.png)
@@ -84,7 +86,7 @@ The original portrait is not stored in D1. Browser uploads are decoded, resized 
 
 Default safeguards: at most 2 units per accepted SKU, a 500-unit balance reserve, 200 total reserved units, 30 per day, and 8 requests per account per day. These are application ceilings, **not a statement of current free credits**. Failed or ambiguous tasks conservatively consume their reservation; they are not automatically retried as new tasks.
 
-References: [clothing v4](https://docs.perfectcorp.com/reference/ai_clothes/v4.0), [API unit balance and costs](https://docs.perfectcorp.com/reference/credit), [hackathon resources](https://youcam-api-skin-ai-ecommerce.devpost.com/resources).
+References: [clothing v4](https://docs.perfectcorp.com/reference/ai_clothes/v4.0), [API unit balance and costs](https://docs.perfectcorp.com/reference/unit_system), [hackathon resources](https://youcam-api-skin-ai-ecommerce.devpost.com/resources).
 
 ## Deploy your own copy
 
@@ -111,7 +113,7 @@ Free-tier availability is subject to the providers' limits. This project does no
 | Operations | Bounded body size, rate limits, SKU/balance guards, polling pause/recheck, fair cleanup |
 | Export | Secret exclusion, CSV formula neutralization |
 
-Mocks verify protocol behavior, not YouCam image quality or a successful live integration. `npm run check` checks JavaScript syntax and a few credential patterns; it is not an independent penetration test or comprehensive secret scanner. Browser verification is recorded separately in `docs/VERIFICATION.md` once performed.
+Mocks verify protocol behavior, not YouCam image quality or a successful live integration. `npm run check` checks JavaScript syntax and a few credential patterns; it is not an independent penetration test or comprehensive secret scanner. See the [verification record](docs/VERIFICATION.md) for production browser journeys, mobile and keyboard fixes, external probes and remaining release gates.
 
 ## Repository map
 
