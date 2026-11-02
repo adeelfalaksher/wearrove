@@ -10,8 +10,8 @@ The user configured the YouCam key as a plain-text variable. It was converted in
 
 ## Automated checks
 
-- `npm test`: 42 passed, zero failed or skipped.
-- `npm run check`: 30 JavaScript modules syntax-checked; recognized credential patterns absent. This is not a comprehensive secret scanner.
+- `npm test`: 44 passed, zero failed or skipped.
+- `npm run check`: 31 JavaScript modules syntax-checked; recognized credential patterns absent. This is not a comprehensive secret scanner.
 - `npm run build`: 12 pages and static assets.
 - PostCSS parsed the new stylesheet successfully.
 - Built HTML contains no old project brand and references only `wearrove.css`.

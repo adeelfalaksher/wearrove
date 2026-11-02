@@ -111,7 +111,7 @@ The deployed legacy Worker hostname and host-only session cookie remain compatib
 
 ## Test and verification
 
-`npm test` currently runs **42 tests** against actual SQLite constraints and a D1-compatible adapter. Coverage includes:
+`npm test` currently runs **44 tests** against actual SQLite constraints and a D1-compatible adapter. Coverage includes:
 
 | Area | Evidence |
 | --- | --- |

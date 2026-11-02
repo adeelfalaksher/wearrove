@@ -54,7 +54,7 @@ Private inference creates its own races. Deleting a preview during upload must n
 
 - A real deployed borrowing workflow, including photo upload, invitation-based membership, approval, collection, actual return and event history.
 - Server- and storage-enforced authorization and date integrity, with isolated identities tested through the deployed interface.
-- 42 automated tests covering domain rules, actual SQLite constraints, API permissions, recovery concurrency, exports and mocked provider lifecycle failures.
+- 44 automated tests covering domain rules, actual SQLite constraints, API permissions, recovery concurrency, exports and mocked provider lifecycle failures.
 - A complete responsive product interface with a shared iOS-inspired surface system, clear create/join paths, private saved-piece comparison and a review workflow. Updated release viewport checks must be recorded separately from the previous design.
 - Public source, an MIT license, diagrams, setup instructions, deployment guidance and an honest verification record.
 
