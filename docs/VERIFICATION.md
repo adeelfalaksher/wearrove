@@ -6,8 +6,8 @@ Last checked: **2 November 2026**. This is an engineering verification record, n
 
 - Website: https://borrowloom.vercel.app/
 - Public source: https://github.com/adeelfalaksher900-creator/borrowloom
-- Product implementation commit: `df1f4d543e621299267fca35442080c2345adeb9`.
-- Vercel deployment `dpl_62ZRL5czcyHAnedktcUw1cpBqXFc` reported `READY` for that commit. The documentation-only follow-up does not change the product behavior tested below.
+- Product implementation commit: `0537052403ffc0d532aaf454f4792fa20bfd7d86`.
+- Vercel deployment `dpl_CMn5FTHVSNBGxjmpNFfcUeZumigS` reported `READY` for that commit. The documentation-only follow-up does not change the product behavior tested below.
 - Dedicated Cloudflare Worker and D1 database serve the same-origin API. No unrelated backend project was modified.
 
 ## Automated verification
@@ -16,8 +16,8 @@ Fresh local run on 2 November 2026:
 
 | Command | Observed result | Scope |
 | --- | --- | --- |
-| `npm test` | 32 passed, 0 failed, 0 skipped | Domain rules, actual SQLite constraints, API permissions and provider mocks |
-| `npm run check` | 22 JavaScript modules passed syntax checks; no recognized credential patterns | A small pattern check, not a comprehensive secret or vulnerability scanner |
+| `npm test` | 35 passed, 0 failed, 0 skipped | Domain rules, actual SQLite constraints, API permissions and provider mocks |
+| `npm run check` | 25 JavaScript modules passed syntax checks; no recognized credential patterns | A small pattern check, not a comprehensive secret or vulnerability scanner |
 | `npm run build` | 10 pages and static assets built successfully | Static production output |
 
 The API test adapter uses actual SQLite and reproduces D1's array-shaped binary reads. It is not a substitute for the separately exercised production browser journey.
@@ -47,6 +47,18 @@ Testing used synthetic QA accounts, a wardrobe explicitly named fictional, and a
 
 The owner and borrower sessions were isolated using two allowed production aliases with separate cookies and the same dedicated backend. QA invitation capabilities are not included in documentation, screenshots or source control.
 
+## Redesign verification, 2 November 2026
+
+The winner review and date-discovery redesign were merged in PR #5; mobile-photo and display-format fixes were merged in PR #6 after the `verify` workflow passed. The public production deployment reported READY for the implementation commit above.
+
+- The homepage garment selector changed the actual image and caption. An overlong window showed the 21-day error and stayed on the homepage.
+- A valid 2–4 November window passed from homepage to wardrobes, into the fictional QA wardrobe and into the garment request's two date fields. The real API returned one of one pieces available; the garment detail confirmed those dates were available to request.
+- Changing the wardrobe return date to 1 December removed the old availability result and showed the validation error. Correcting it restarted the checks. No booking was created during this discovery check.
+- Homepage create and join links opened their actual forms after the authenticated page mounted. The query action was removed from the address to avoid reopening on refresh. An incomplete invitation produced the explicit complete-link error; no membership was created.
+- New helper tests check the four-request concurrency cap, stale-window cancellation and rejection of failed or malformed answers without a partial success map. Browser and backend date validation use the same source module.
+- Independent public homepage captures at 390, 768 and 1440 px were downloaded and visually inspected. A stretched-photo defect found in the first 390 px capture was corrected with automatic image height; all three new captures showed the intended photo proportions and content within the page. This does not establish physical-device touch or screen-reader coverage.
+- Eight display WebP variants total 409,294 bytes versus 8,391,125 bytes for the four original PNGs. This is an asset byte-count comparison, not a loading-time or frame-rate measurement. Original provider inputs remain unchanged.
+
 ## Interface and accessibility
 
 - A 390-pixel mobile homepage render exposed an image minimum-width overflow. The deployed correction was reviewed at 390 × 3995 pixels: navigation, hero, sections and footer remained within the rendered page. This is a visual review, not a full interactive mobile or real-device test.
@@ -75,7 +87,7 @@ GitHub changes have used reviewed pull requests and a passing `verify` workflow.
 | Requirement | Current evidence / next action |
 | --- | --- |
 | Real working application | Borrowing workflow deployed and tested as described above |
-| At least one genuine YouCam API integration | Adapter implemented and mock-tested; **account activation, secure credential configuration and a real successful task are still required** |
+| At least one genuine YouCam API integration | Adapter implemented and mock-tested; **secure credential configuration and a real successful task are still required**; the user reports obtaining an API key |
 | Public source and license | Public GitHub repository with MIT license, setup, architecture and test documentation |
 | Free judge access | Public website and browser account available; real preview access depends on verified provider units and cost |
 | Event registration | Devpost still displayed `Register for this hackathon` on 2 November; Apparel VTO selected in the form, but registration not submitted |

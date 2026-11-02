@@ -8,7 +8,7 @@
 
 **Source:** https://github.com/adeelfalaksher900-creator/borrowloom
 
-**Draft status:** Text prepared here; not yet saved in Devpost. Event registration is incomplete and blocks project creation. Provider account activation and live inference verification remain release gates. Final screenshots and the public 1–3 minute video are reserved for the separately approved media phase.
+**Draft status:** Text prepared here; not yet saved in Devpost. Event registration is incomplete and blocks project creation. Secure server credential configuration and live inference verification remain release gates. The user reports obtaining an API key. Final screenshots and the public 1–3 minute video are reserved for the separately approved media phase.
 
 ## Inspiration
 
@@ -20,7 +20,7 @@ Research on clothing libraries and rental services points to occasional-use oppo
 
 ## What it does
 
-An owner creates an invitation-only wardrobe and adds a garment photograph, labelled size, actual measurements, condition and care instructions. Friends join through a private invitation, search the pieces and check collection and return dates.
+An owner creates an invitation-only wardrobe and adds a garment photograph, labelled size, actual measurements, condition and care instructions. Friends join through a private invitation. They can choose dates on the homepage, check availability across the wardrobe, combine it with search and category filters, and open a piece with those dates already entered. A failed lookup never becomes an available badge.
 
 A borrower can optionally open a private fitting room, consent to YouCam photo processing and request a visual preview. The owner sees the borrowing request, not the borrower's portrait or generated result. A preview is an illustration of appearance; the owner’s measurements and direct agreement remain essential.
 
@@ -40,7 +40,7 @@ The YouCam adapter registers the two input files, uploads them to signed storage
 
 Provider errors pause polling rather than leaving an endless spinner. An explicit recheck retrieves the same task. Results expire after 24 hours, can be removed earlier, and are followed by a provider deletion request with scheduled retries.
 
-**Current integration verification:** automated provider tests use mocked responses to verify the protocol and failure handling. A live YouCam inference is not yet verified because account activation is pending. The deployed fitting room reports unavailability honestly and does not fabricate an output. This draft must be updated with the observed live result before judging.
+**Current integration verification:** automated provider tests use mocked responses to verify the protocol and failure handling. A live YouCam inference is not yet verified because the server credential is not configured. The deployed fitting room reports unavailability honestly and does not fabricate an output. This draft must be updated with the observed live result before judging.
 
 ## Challenges
 
@@ -52,8 +52,8 @@ Private inference creates its own races. Deleting a preview during upload must n
 
 - A real deployed borrowing workflow, including photo upload, invitation-based membership, approval, collection, actual return and event history.
 - Server- and storage-enforced authorization and date integrity, with isolated identities tested through the deployed interface.
-- 32 automated tests covering domain rules, actual SQLite constraints, API permissions, recovery concurrency, exports and mocked provider lifecycle failures.
-- A coherent product interface with original editorial imagery, useful empty and error states, keyboard-accessible controls and a mobile layout.
+- 35 automated tests covering domain rules, actual SQLite constraints, API permissions, recovery concurrency, exports and mocked provider lifecycle failures.
+- A coherent product interface with original garment imagery, separate create/join paths, date-aware discovery, useful empty and error states and labelled phone navigation. Desktop, tablet and phone renders were reviewed after correcting stretched mobile photographs.
 - Public source, an MIT license, diagrams, setup instructions, deployment guidance and an honest verification record.
 
 These are engineering observations, not evidence of adoption, carbon savings or a measured improvement in borrowing behaviour.
