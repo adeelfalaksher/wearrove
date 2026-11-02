@@ -74,7 +74,7 @@ async function upload(env,image,name) {
 }
 
 export function publicJob(row) {
-  return {id:row.id,garment_id:row.garment_id,garment_title:row.garment_title,status:row.status,created_at:row.created_at,expires_at:row.expires_at,error_code:row.error_code,poll_after_ms:Math.max(10500,(row.next_poll_at||0)-Date.now()),can_recheck:row.status==='paused'&&Boolean(row.provider_id),image_url:row.status==='succeeded'?`/api/tryons/${row.id}/image`:null};
+  return {id:row.id,garment_id:row.garment_id,garment_title:row.garment_title,garment_version:row.garment_version,status:row.status,created_at:row.created_at,expires_at:row.expires_at,error_code:row.error_code,poll_after_ms:Math.max(10500,(row.next_poll_at||0)-Date.now()),can_recheck:row.status==='paused'&&Boolean(row.provider_id),image_url:row.status==='succeeded'?`/api/tryons/${row.id}/image`:null};
 }
 
 export async function startPreview(env,user,garment,input,photo) {
@@ -86,7 +86,8 @@ export async function startPreview(env,user,garment,input,photo) {
     if(existing.input_digest!==inputDigest||existing.garment_id!==garment.id||existing.garment_version!==garment.version)throw new Problem('REQUEST_CHANGED','This request key belongs to a different photograph or garment. Start a new request.',409);
     return publicJob(existing);
   }
-  const cached=await env.DB.prepare("SELECT * FROM tryon_jobs WHERE user_id=? AND garment_id=? AND garment_version=? AND input_digest=? AND expires_at>? AND status IN ('reserved','uploading','submitted','running','paused','uncertain','succeeded') ORDER BY created_at DESC LIMIT 1").bind(user.id,garment.id,garment.version,inputDigest,Date.now()).first();
+  const findCached=()=>env.DB.prepare("SELECT * FROM tryon_jobs WHERE user_id=? AND garment_id=? AND garment_version=? AND input_digest=? AND expires_at>? AND status IN ('reserved','uploading','submitted','running','paused','uncertain','succeeded') ORDER BY created_at DESC LIMIT 1").bind(user.id,garment.id,garment.version,inputDigest,Date.now()).first();
+  const cached=await findCached();
   if(cached)return publicJob(cached);
   const {cost,spendable,minimum}=await priceAndBalance(env);
   const day=today(),now=Date.now(),id=crypto.randomUUID();
@@ -98,14 +99,21 @@ export async function startPreview(env,user,garment,input,photo) {
       SELECT ?,?,?,?,?,?,?,'reserved',?,?,? FROM budgets t,budgets d
       WHERE t.key='total' AND d.key=? AND t.units+?<=? AND d.units+?<=?
       AND (SELECT COUNT(*) FROM tryon_jobs WHERE user_id=? AND created_at>?)<8
-      AND ?>=?+?+COALESCE((SELECT SUM(cost) FROM tryon_jobs WHERE status IN ('reserved','uploading','submitted','running','paused','uncertain')),0)`).bind(id,user.id,garment.id,garment.version,garment.title,idempotency,inputDigest,cost,now,now+86400000,day,cost,Number(env.YOUCAM_TOTAL_BUDGET||200),cost,Number(env.YOUCAM_DAILY_BUDGET||30),user.id,now-86400000,spendable,minimum,cost),
+      AND ?>=?+?+COALESCE((SELECT SUM(cost) FROM tryon_jobs WHERE status IN ('reserved','uploading','submitted','running','paused','uncertain')),0)
+      AND EXISTS(SELECT 1 FROM garments g JOIN members m ON m.circle_id=g.circle_id WHERE g.id=? AND g.version=? AND g.archived=0 AND m.user_id=?)
+      AND NOT EXISTS(SELECT 1 FROM tryon_jobs WHERE user_id=? AND garment_id=? AND garment_version=? AND input_digest=? AND expires_at>? AND status IN ('reserved','uploading','submitted','running','paused','uncertain','succeeded'))`).bind(id,user.id,garment.id,garment.version,garment.title,idempotency,inputDigest,cost,now,now+86400000,day,cost,Number(env.YOUCAM_TOTAL_BUDGET||200),cost,Number(env.YOUCAM_DAILY_BUDGET||30),user.id,now-86400000,spendable,minimum,cost,garment.id,garment.version,user.id,user.id,garment.id,garment.version,inputDigest,now),
     env.DB.prepare("UPDATE budgets SET units=units+? WHERE key IN ('total',?) AND EXISTS(SELECT 1 FROM tryon_jobs WHERE id=?)").bind(cost,day,id)
   ]); } catch (e) {
     const duplicate=await env.DB.prepare('SELECT * FROM tryon_jobs WHERE user_id=? AND idempotency_key=?').bind(user.id,idempotency).first();
     if(duplicate && duplicate.input_digest===inputDigest && duplicate.garment_id===garment.id && duplicate.garment_version===garment.version)return publicJob(duplicate);
     throw e;
   }
-  if(!reserved[2].meta?.changes)throw new Problem('PREVIEW_BUDGET','The available preview allowance has been reached. Please try another day; borrowing is still available.',429);
+  if(!reserved[2].meta?.changes){
+    const winner=await findCached();if(winner)return publicJob(winner);
+    const allowed=await env.DB.prepare('SELECT 1 FROM garments g JOIN members m ON m.circle_id=g.circle_id WHERE g.id=? AND g.version=? AND g.archived=0 AND m.user_id=?').bind(garment.id,garment.version,user.id).first();
+    if(!allowed)throw new Problem('GARMENT_CHANGED','This piece or your wardrobe access changed. Reopen the piece before trying again.',409);
+    throw new Problem('PREVIEW_BUDGET','The available preview allowance has been reached. Please try another day; borrowing is still available.',429);
+  }
   let submitted=false;
   try{
     let garmentPhoto;
@@ -189,6 +197,7 @@ export async function pollPreview(env,row,manual=false) {
 export async function cleanup(env) {
   const now=Date.now();
   await env.DB.batch([
+    env.DB.prepare("DELETE FROM preview_reviews WHERE job_id IN (SELECT id FROM tryon_jobs WHERE expires_at<=? OR status='cancelled')").bind(now),
     env.DB.prepare('DELETE FROM result_chunks WHERE job_id IN (SELECT id FROM tryon_jobs WHERE expires_at<=?)').bind(now),
     env.DB.prepare("UPDATE tryon_jobs SET status='expired' WHERE expires_at<=? AND status<>'expired'").bind(now),
     env.DB.prepare('DELETE FROM sessions WHERE expires_at<=?').bind(now),

@@ -1,4 +1,4 @@
-# Borrowloom product requirements
+# Wearrove product requirements
 
 ## Product promise
 
@@ -43,3 +43,9 @@ During development, measure task correctness, concurrency behaviour, isolation, 
 ## Phase boundaries
 
 Finish the product, tests, deployment, repository and Devpost text first. The final video, fifteen-image gallery and final submission require the user's later approval. No enrolled-student or teammate role is invented.
+
+## Wearrove decision workflow, 2 November 2026
+
+The public product is Wearrove. A borrower discovers a piece in an invitation-only wardrobe, saves alternatives, compares up to three with actual measurements and a checked date window, optionally creates a private YouCam preview, records a manual detail review, then requests the garment. The owner confirms, records collection and actual return. Privacy, human control and available dates are part of the product decision rather than separate presentation claims.
+
+Acceptance: saved items persist across reload, remain private and stop appearing after membership loss. Hidden records must not trap the 30-piece capacity. Comparison never interprets an API failure as availability, and carries valid dates into the selected piece. Manual review cannot mark a preview usable with unchecked controls; another account, an unfinished job, a cancelled job or an expired job cannot read/write/export it. The comparison slider works with keyboard and touch; no original portrait is promised after reload because it is not retained by this application. Mobile and desktop use the same functioning application with layouts adapted to each screen.

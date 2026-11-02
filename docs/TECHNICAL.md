@@ -1,13 +1,13 @@
-# Borrowloom technical design
+# Wearrove technical design
 
 ## Architecture
 
-Use semantic multipage HTML, original responsive CSS and small browser JavaScript modules. Vercel hosts static files and proxies `/api/*` to a dedicated Cloudflare Worker. A dedicated D1 database provides durable SQLite transactions. No paid infrastructure plan is enabled. This architecture avoids a new database subscription and isolates Borrowloom from existing projects.
+Use semantic multipage HTML, original responsive CSS and small browser JavaScript modules. Vercel hosts static files and proxies `/api/*` to a dedicated Cloudflare Worker. A dedicated D1 database provides durable SQLite transactions. No paid infrastructure plan is enabled. This architecture avoids a new database subscription and isolates Wearrove from existing projects.
 
 ```mermaid
 flowchart TD
   U["Owner or borrower browser"] --> V["Vercel site and same-origin API proxy"]
-  V --> W["Borrowloom Worker"]
+  V --> W["Wearrove Worker"]
   W --> D["D1 records and private result chunks"]
   W --> Y["YouCam file and clothing v4 API"]
   Y --> W
@@ -65,6 +65,14 @@ Index membership lookups, garment/circle queries, blocking loan windows and user
 | `GET /api/export` | Export the current user's accessible records without credentials or other users' portraits |
 | `GET /api/health` | Readiness, with missing required configuration reported honestly |
 
+## Decision tools and rollout
+
+`GET /api/saved` lists only the current account’s accessible saved garments. `PUT /api/saved/:id` saves a member-accessible, active garment; `DELETE` removes only the initiating user’s saved relationship. There is a 30-piece cap. Before a new insertion, an atomic batch releases inaccessible or borrower-hidden archived saves and enforces the cap. Membership is checked again inside the insertion.
+
+`GET` and `PUT /api/tryons/:id/review` read or write only an owned, succeeded and unexpired job’s manual observations. A usable-reference decision requires all three explicit checks; this records the user’s judgment, not automated biometric or garment verification. `/receipt` exports that review and versioned garment/job metadata without images, provider URLs, task identifiers or credentials. Cancellation removes image chunks and the review together. Scheduled expiry cleanup removes reviews before retiring jobs.
+
+Apply migration `004-decisions.sql` before Worker rollout. It adds tables only. No existing records are overwritten. Current D1 remains dedicated to this service. The existing Worker hostname and `__Host-borrowloom` cookie are retained solely for compatibility; the new UI uses `X-Wearrove`, and the trusted-origin guard accepts the legacy header during the transition.
+
 ## YouCam adapter
 
 The official contract is file registration → signed upload → `POST /s2s/v2.0/task/cloth-v4` → periodic status checks → bounded result retrieval → finished-task deletion. Use `filter_multi_person: strict`, a matching supported garment category and no body reshaping. The API key is a Worker secret and never shipped in HTML, JavaScript, source control or logs.
@@ -80,3 +88,7 @@ Portrait input bytes are held only for processing, not added to the shared wardr
 Use Node's test runner and a SQLite-backed D1 adapter for domain, route, database and provider-protocol tests. Include concurrent approval attempts, care-day boundaries, unauthorized sessions, stale versions, invalid images, malformed JSON, expired previews, cancellation rules, duplicate requests and unknown provider outcomes. Provider mocks prove protocol handling only; record live API observations separately after account access is authorized.
 
 Use the connected browser to test both roles on the deployed site, mobile layouts, keyboard/dialog flows, refresh/recovery, exports, errors and public links. Inspect browser console messages. Do not claim a full independent penetration test or WCAG certification from these checks.
+
+## Concurrency boundaries
+
+Invitation joining checks the current invite digest and capacity inside the membership INSERT, preventing an in-flight old invitation from restoring a removed member. Preview reservation rechecks membership, garment version and archival state inside its transaction. Identical active inputs with distinct page keys are coalesced at that reservation boundary; only the winning job receives a unit reservation and starts inference.

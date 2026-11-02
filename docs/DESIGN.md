@@ -1,35 +1,24 @@
-# Borrowloom design direction
+# Wearrove visual and interaction system
 
-## Product character
+The previous berry/red Borrowloom page and layered style overrides are replaced by a single `public/wearrove.css`. The design uses porcelain and cool-grey surfaces, graphite text, a cobalt action colour, native system typography, rounded controls and restrained frosted material on navigation and contextual overlays. The user’s explicit glossy iOS brief takes priority over the design-taste skill’s no-glass house style; it does not justify obscured text, fake controls, coloured glow or missing contrast.
 
-A clear clothing service with large garment photography, near-white and light-grey surfaces, readable ink text and a restrained red accent. Native system sans-serif typography, rounded controls and labelled phone navigation follow the requested iOS character. No gradients, glowing AI ornaments, endorsement logos or invented metrics. The first screen explains borrowing from known friends and gives real create/join actions.
+## Whole-site composition
 
-## References inspected through Mobbin
+The new homepage is centred rather than the earlier half-text/half-photo hero: a clear headline and create/join actions, a three-garment stage, a functioning date finder, full-width collection browsing, a private review explanation, the real handover workflow, FAQ and full footer. Garment imagery is illustrative and is not offered public inventory. The example portrait is identified as YouCam’s documentation sample, never as a generated result.
 
-- [ZARA product view](https://mobbin.com/screens/b5ef602f-13cb-4dfb-8813-d7e4258a06ef): the garment dominates the page; metadata is secondary and the composition has room to breathe.
-- [Selfridges item-detail form](https://mobbin.com/screens/deb3c52c-d189-454f-9dba-e06a130c2391): concrete condition and included-parts inputs, selected chips and a clear next step.
-- [Tripadvisor reservation selection](https://mobbin.com/screens/21632a98-8496-4d51-842f-103cd064d9c4): the date, available option and total commitment are adjacent. Reuse this clarity for borrowing dates, without presenting a payment flow.
-- [Zomato reservation screen](https://mobbin.com/screens/4e8c570a-810c-4633-a74d-9a90de18bf60): constrained choices and a bottom continuation control keep a mobile reservation understandable.
+Every application page shares the same header, surfaces, input sizes, loading/error states and labelled phone navigation. Wardrobes lead to garment details; saved pieces lead to a real comparison table; the fitting room leads to a manual preview review and measurement/date decision; borrowing has authorised next actions and history; account has recovery and export. About, guide and privacy pages are functional destinations, not placeholder links.
 
-These are design references, not licensed assets or screenshots to embed in Borrowloom. Copy no brand logo, protected photograph or entire product design.
+## Complete flow references
 
-Additional references from the redesign are [Depop item details](https://mobbin.com/screens/fa88a213-b3fb-478b-9681-8531578dd704), [Depop listing management](https://mobbin.com/screens/ff0c5318-3ec2-43cd-ae77-a23e9d04fccf), [Vinted mobile browsing](https://mobbin.com/screens/f5b782b0-b5de-4293-bd39-5db1d7cc39aa), and the free MINNA listing found through Templens. [WINNER-REVIEW.md](WINNER-REVIEW.md) records the search, asset limits and skill-direction decisions. No template code or protected photography was imported.
+- [Alta: adding a look](https://mobbin.com/flows/3fc65be0-7df7-4582-9514-d299ab0cb402): home context, wardrobe selection, calendar association, labelled navigation and saved state.
+- [Vinted: reserving an item](https://mobbin.com/flows/3acd4baa-1ee5-463e-b862-5deab834e205): garment detail, reservation action and a visible reserved state.
+- [H&M: item detail](https://mobbin.com/flows/667b324b-2ead-4804-b8b0-adc1036d7a54): catalogue, image-led detail, concrete choices and adjacent next action.
+- [Urban Outfitters: product detail](https://mobbin.com/flows/4620051a-988b-47f9-a997-ac0a877ad2dc): browse/filter/detail progression and disclosure of item information.
 
-## Screens
+Templens was searched for a complete free clothing/try-on app template, not one component. It reported zero exact free matches and suggested alternatives. The [Cartelle template](https://www.framer.com/marketplace/templates/cartelle/) and its [full storefront preview](https://cartelle-template.framer.website/) were reviewed from navigation through collections, product sections and footer. The earlier MINNA storefront was also inspected. These Framer listings are not a source-code licence for redistributing their photographs or exporting their code into this public repository. Wearrove implements its own complete layout and functioning paths; it does not claim to have imported a template when it has not.
 
-- Home: literal product explanation, interactive garment selector, create/join actions, date entry, privacy summary, FAQ and full footer.
-- My wardrobes: memberships, owned collections, join/create flows and a useful empty state.
-- Wardrobe: dates and availability first, search/filter controls, garment gallery, details and owner controls.
-- Fitting room: selected garment, explicit image/processing permission, capture guidance, real asynchronous state, completed comparison and request CTA.
-- Borrowing: separate incoming and personal requests, a clear status trail and authorized next actions.
-- Guide: owner/borrower instructions, photo requirements, care-day explanation and preview limitations.
-- Settings: display name, recovery, export, photo deletion and membership controls.
-- Privacy: specific data, recipients, expiry, deletion and operating limits.
+## Interaction and accessibility
 
-## Interaction requirements
+Touch controls are at least 44px except passive text. Inputs use readable mobile type and explicit labels. Checkboxes use native controls and keyboard Space; comparison uses a native range slider, with side-by-side fallback. A private comparison table scrolls inside a labelled region rather than overflowing the phone page. Dialogs use native focus trapping and Escape. Reduced motion drops travel and transitions; reduced-transparency preferences receive opaque surfaces. Glass is limited to places with a stable readable backdrop.
 
-44px touch targets; explicit labels; visible focus; no placeholder-only forms; form errors associated with the field; a live status region; real disabled/busy states. Dialogs trap focus and close with Escape. Preserve entered values after recoverable errors. The return date is inclusive and a care day is visibly blocked. A pending request never looks confirmed. Avoid animation that delays core tasks; reduced-motion users receive the same content immediately.
-
-## Skills applied
-
-Minimalist UI and high-end visual-design guidance inform hierarchy, spacing, typography and restrained motion. Their conflicting styling prescriptions are resolved in favour of this product's accessible editorial system. Anatomy is relevant only for an explanatory mechanism, rather than the main commerce UI. REA explicitly directs ordinary source projects to normal repository analysis; no binary reverse engineering is needed. The macOS menubar skill does not apply to a browser application and is not used to introduce a separate native product.
+Mobbin images and competitor photographs are not bundled. Phosphor icons were obtained through Supericons and retain the MIT notice in ASSETS.md. All reference conclusions are our interpretation of inspected screens, not an endorsement by those products.

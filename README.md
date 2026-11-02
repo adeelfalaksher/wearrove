@@ -1,10 +1,10 @@
-# Borrowloom
+# Wearrove
 
 ### Try it on. Borrow from friends.
 
-[Open Borrowloom](https://borrowloom.vercel.app/) · [Borrowing guide](https://borrowloom.vercel.app/guide) · [Verification record](docs/VERIFICATION.md)
+[Open Wearrove](https://wearrove.vercel.app/) · [Borrowing guide](https://wearrove.vercel.app/guide) · [Verification record](docs/VERIFICATION.md)
 
-Borrowloom is an invitation-only wardrobe for friends sharing occasionwear. It combines real borrowing dates and owner-controlled handovers with an optional private **YouCam clothing v4** visual preview.
+Wearrove is an invitation-only wardrobe for friends sharing occasionwear. It combines real borrowing dates and owner-controlled handovers with an optional private **YouCam clothing v4** visual preview.
 
 ![A shared rail with a burgundy dress, navy jacket and ivory blouse](public/assets/hero-large.webp)
 
@@ -14,9 +14,9 @@ See the [five-winner review and redesign decisions](docs/WINNER-REVIEW.md) for t
 
 ## Why this exists
 
-Borrowing from a friend often means scattered photos, uncertain dates, and unspoken care arrangements. A generated outfit alone does not resolve those details. Borrowloom brings them into one private, structured workflow.
+Borrowing from a friend often means scattered photos, uncertain dates, and unspoken care arrangements. A generated outfit alone does not resolve those details. Wearrove brings them into one private, structured workflow.
 
-Clothing-rental research identifies assortment, availability, trust and practical processes as adoption barriers. Borrowloom narrows its audience to existing personal circles and occasional use. It does **not** claim measured adoption, avoided purchases, carbon savings or guaranteed physical fit. See [research and competitor analysis](docs/RESEARCH.md).
+Clothing-rental research identifies assortment, availability, trust and practical processes as adoption barriers. Wearrove narrows its audience to existing personal circles and occasional use. It does **not** claim measured adoption, avoided purchases, carbon savings or guaranteed physical fit. See [research and competitor analysis](docs/RESEARCH.md).
 
 ## What works
 
@@ -27,9 +27,11 @@ Clothing-rental research identifies assortment, availability, trust and practica
 - Prevent overlapping confirmations in SQLite triggers, including adjacent cleaning time and overdue collection.
 - Use a private browser account with a display name, single-use recovery codes, session revocation and JSON/CSV exports.
 - Submit a consented portrait and garment to YouCam clothing v4, when the server credential is configured. Results are private to their initiating account, expire after 24 hours and can be deleted sooner.
+- Save up to 30 pieces privately and compare up to three side by side, including current measurements, care time, private previews and live availability. Inaccessible saves release their capacity.
+- Record a manual preview detail review, mark a concern or a usable visual reference, and export a private JSON review. This is a user observation, not an automatic identity-fidelity check.
 - Explore a clearly labelled example wardrobe with fictional garments. It offers no real physical inventory.
 
-**Integration status:** the provider adapter and its failure paths are implemented and tested with mocks. A live YouCam inference has **not yet been verified** because the server credential has not yet been configured. The user reports obtaining an API key; it must be entered directly into encrypted server settings. Missing credentials explicitly disable preview; no image is fabricated or substituted. Borrowing remains independently usable.
+**Integration status:** the provider adapter and its failure paths are implemented and tested with mocks. A live YouCam inference has **not yet been verified** until the newly configured encrypted server credential has passed a real task. Missing credentials explicitly disable preview; no image is fabricated or substituted. Borrowing remains independently usable.
 
 ## Architecture
 
@@ -70,7 +72,7 @@ npm run build
 npm run dev
 ```
 
-Open `http://localhost:3080`. Development uses `.local/borrowloom.sqlite`, excluded from version control. It contains your local test records. A fresh browser gets an empty account; create a wardrobe or explore the explicitly labelled example.
+Open `http://localhost:3080`. Development uses `.local/wearrove.sqlite`, excluded from version control. It contains your local test records. A fresh browser gets an empty account; create a wardrobe or explore the explicitly labelled example.
 
 To try live inference locally, set `YOUCAM_API_KEY` in your shell before running the development server. Keep it out of command history, screenshots and commits. `.env.example` documents the server variables; it contains no credential. The development server does not automatically load `.env` files.
 
@@ -101,9 +103,15 @@ References: [clothing v4](https://docs.perfectcorp.com/reference/ai_clothes/v4.0
 
 Free-tier availability is subject to the providers' limits. This project does not enable a paid plan, payment collection, shipping or insurance. Production requires an operator to monitor quotas and the service's continued availability.
 
+## Upgrade an existing deployment
+
+Apply `src/migrations/004-decisions.sql` to the existing dedicated D1 database **before** deploying this Worker release. It adds `saved_pieces` and `preview_reviews` without changing existing wardrobes, loans or sessions. The current full schema includes those tables already; new databases need only `src/schema.sql`. Existing local `.local/borrowloom.sqlite` files are opened in place so rebranding does not strand local records. New local databases use `.local/wearrove.sqlite`.
+
+The deployed legacy Worker hostname and host-only session cookie remain compatibility identifiers. They do not change the public Wearrove brand or create a shared database with another product. Existing old-host accounts and invitation links continue on their original host. Browser cookies are host-only: on a new hostname, use the account recovery flow to move an account; no cross-domain session sharing is introduced.
+
 ## Test and verification
 
-`npm test` currently runs **35 tests** against actual SQLite constraints and a D1-compatible adapter. Coverage includes:
+`npm test` currently runs **42 tests** against actual SQLite constraints and a D1-compatible adapter. Coverage includes:
 
 | Area | Evidence |
 | --- | --- |
@@ -134,7 +142,7 @@ docs/               Product, technical, design and research decisions
 
 ## Current limits
 
-Borrowloom coordinates people who already know each other. It does not verify identities or garment ownership, arbitrate damage, establish physical fit, charge deposits, handle shipping, or guarantee availability outside the recorded handover process. Full account deletion is not yet automated. Invitations and recovery codes are private bearer capabilities; anyone holding one has its corresponding access. Generated result access expires after 24 hours; provider-side deletion is requested and retried, not independently guaranteed.
+Wearrove coordinates people who already know each other. It does not verify identities or garment ownership, arbitrate damage, establish physical fit, charge deposits, handle shipping, or guarantee availability outside the recorded handover process. Full account deletion is not yet automated. Invitations and recovery codes are private bearer capabilities; anyone holding one has its corresponding access. Generated result access expires after 24 hours; provider-side deletion is requested and retried, not independently guaranteed.
 
 The build has no measured user adoption or garment-borrowing impact study. Judge materials must distinguish observed behavior from future product plans. Live YouCam verification and event registration remain explicit release gates.
 

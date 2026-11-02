@@ -83,3 +83,60 @@ test('archived pending requests advertise decline, not an impossible approval ac
   const list=(await f.owner.call('/api/loans')).data.loans.find(x=>x.id===l.data.id);assert.deepEqual(list.actions,['declined']);
   assert.equal((await f.owner.call('/api/loans/'+l.data.id,'PATCH',{status:'approved'})).status,409);f.e.DB.close();
 });
+
+test('saved pieces persist privately, reject strangers, and disappear after membership revocation',async()=>{
+  const f=await fixture();
+  assert.equal((await f.borrower.call('/api/saved/'+f.g.id,'PUT',{})).status,200);
+  assert.equal((await f.borrower.call('/api/saved/'+f.g.id,'PUT',{})).status,200);
+  const list=await f.borrower.call('/api/saved');assert.equal(list.data.pieces.length,1);assert.equal(list.data.pieces[0].id,f.g.id);
+  assert.equal((await f.owner.call('/api/saved')).data.pieces.length,0);
+  assert.equal((await f.stranger.call('/api/saved/'+f.g.id,'PUT',{})).status,404);
+  assert.equal((await f.owner.call('/api/circles/'+f.id+'/members/'+(await f.borrower.call('/api/session')).data.user.id,'DELETE')).status,200);
+  assert.equal((await f.borrower.call('/api/saved')).data.pieces.length,0);
+  assert.equal((await f.borrower.call('/api/saved/'+f.g.id,'PUT',{})).status,404);
+  assert.equal((await f.borrower.call('/api/saved/'+f.g.id,'DELETE')).status,200);f.e.DB.close();
+});
+
+test('preview review is human-entered, owner-private, expiry-bounded and exported without provider secrets',async()=>{
+  const f=await fixture(),uid=(await f.borrower.call('/api/session')).data.user.id,jid=crypto.randomUUID();
+  f.e.DB.sqlite.prepare("INSERT INTO tryon_jobs(id,user_id,garment_id,garment_version,garment_title,idempotency_key,input_digest,status,cost,created_at,expires_at,provider_id) VALUES(?,?,?,1,'Dress',?,'hash','succeeded',2,?,?, 'private-provider-task')").run(jid,uid,f.g.id,crypto.randomUUID(),Date.now(),Date.now()+100000);
+  const route='/api/tryons/'+jid+'/review',review={face_checked:true,garment_checked:true,colour_checked:true,decision:'ready',notes:'Visual review only; measurements still need checking.'};
+  assert.equal((await f.owner.call(route)).status,404);assert.equal((await f.owner.call(route,'PUT',review)).status,404);
+  assert.equal((await f.borrower.call(route,'PUT',{...review,face_checked:false})).status,400);
+  assert.equal((await f.borrower.call(route,'PUT',{...review,face_checked:'true'})).status,400);
+  assert.equal((await f.borrower.call(route,'PUT',review)).status,200);
+  assert.equal((await f.borrower.call(route)).data.review.decision,'ready');
+  const report=await f.borrower.call('/api/tryons/'+jid+'/receipt');assert.equal(report.status,200);assert.equal(report.data.review.method,'human');
+  assert.equal(report.data.preview.model,'YouCam clothing v4');assert.ok(!/private-provider-task|provider_id|input_digest|image_url|token_hash/.test(JSON.stringify(report.data)));
+  assert.equal((await f.borrower.call(route,'PUT',{...review,decision:'concern',face_checked:false,notes:'Hair detail changed.'})).status,200);
+  assert.equal((await f.borrower.call('/api/tryons/'+jid,'DELETE')).status,200);
+  assert.equal((await f.borrower.call(route)).status,410);assert.equal(f.e.DB.sqlite.prepare('SELECT COUNT(*) n FROM preview_reviews').get().n,0);f.e.DB.close();
+});
+
+test('saved-piece capacity is reclaimed for archived and revoked entries',async()=>{
+  const f=await fixture(),ids=[];
+  for(let i=0;i<31;i++){const id=crypto.randomUUID();ids.push(id);f.e.DB.sqlite.prepare("INSERT INTO garments(id,circle_id,title,category,size_label,asset,created_at) VALUES(?,?,'QA dress','full_body','M','dress.png',?)").run(id,f.id,Date.now()+i);}
+  for(const id of ids.slice(0,30))assert.equal((await f.borrower.call('/api/saved/'+id,'PUT',{})).status,200);
+  assert.equal((await f.borrower.call('/api/saved/'+ids[30],'PUT',{})).status,409);
+  f.e.DB.sqlite.prepare('UPDATE garments SET archived=1 WHERE circle_id=? AND id<>?').run(f.id,ids[30]);
+  assert.equal((await f.borrower.call('/api/saved')).data.pieces.length,0);
+  assert.equal((await f.borrower.call('/api/saved/'+ids[30],'PUT',{})).status,200);
+  const uid=(await f.borrower.call('/api/session')).data.user.id;await f.owner.call('/api/circles/'+f.id+'/members/'+uid,'DELETE');
+  const c=await f.owner.call('/api/circles','POST',{title:'Another wardrobe',care_days:1,example:true});await f.borrower.call('/api/join','POST',{circle_id:c.data.id,invite:c.data.invite});
+  const piece=(await f.borrower.call('/api/circles/'+c.data.id)).data.garments[0];assert.equal((await f.borrower.call('/api/saved/'+piece.id,'PUT',{})).status,200);
+  assert.equal(f.e.DB.sqlite.prepare('SELECT COUNT(*) n FROM saved_pieces WHERE user_id=?').get(uid).n,1);f.e.DB.close();
+});
+
+test('a join already in flight cannot restore a member after invitation revocation',async()=>{
+  const f=await fixture(),prepare=f.e.DB.prepare;let reached,release,once=false;const entered=new Promise(r=>{reached=r;}),gate=new Promise(r=>{release=r;});
+  f.e.DB.prepare=sql=>{const original=prepare(sql);if(!sql.includes('COUNT(*) AS n FROM members WHERE circle_id=?'))return original;const wrap=s=>({bind:(...p)=>wrap(s.bind(...p)),async first(){if(!once){once=true;reached();await gate;}return s.first();},all:()=>s.all(),run:()=>s.run()});return wrap(original);};
+  const joining=f.borrower.call('/api/join','POST',{circle_id:f.id,invite:f.invite});await entered;
+  const uid=(await f.borrower.call('/api/session')).data.user.id;assert.equal((await f.owner.call('/api/circles/'+f.id+'/members/'+uid,'DELETE')).status,200);release();
+  assert.equal((await joining).status,404);assert.equal((await f.borrower.call('/api/circles/'+f.id)).status,404);f.e.DB.close();
+});
+
+test('the rebranded mutation header works while legacy sessions remain valid',async()=>{
+  const f=await fixture();assert.match(f.owner.cookie,/^__Host-borrowloom=/);
+  assert.equal((await f.owner.call('/api/session','PATCH',{name:'Wearrove QA'},{'X-Borrowloom':'','X-Wearrove':'1'})).status,200);
+  assert.equal((await f.owner.call('/api/session','PATCH',{name:'No'},{'X-Borrowloom':'','X-Wearrove':'1',Origin:'https://attacker.invalid'})).status,403);f.e.DB.close();
+});

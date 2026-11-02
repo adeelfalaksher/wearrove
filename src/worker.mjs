@@ -1,6 +1,7 @@
 import {Problem,text,identifier,today,loanDates,garmentFields,circleFields,availability,requireTransition,canTransition,csvCell,EXAMPLE_GARMENTS} from './domain.mjs';
 import {token,digest,opaque,trustedMutation,readJSON,rateLimit,session,cookie,member,imageData,json,safeImageResponse} from './security.mjs';
 import {startPreview,sourcePhoto,pollPreview,publicJob,deleteProvider,cleanup,ERROR_GUIDANCE} from './youcam.mjs';
+import {savedPieces,savePiece,previewReview,reviewReceipt} from './decisions.mjs';
 
 const fields='g.id,g.circle_id,g.title,g.category,g.size_label,g.colour,g.measurements,g.condition_note,g.care_note,g.asset,g.archived,g.version,g.created_at';
 const toGarment=g=>({...g,photo_url:g.asset?'/assets/'+g.asset:`/api/garments/${g.id}/photo`});
@@ -68,9 +69,20 @@ async function api(request,env,ctx){
     if(!c)throw new Problem('INVITE_INVALID','This invitation is no longer valid. Ask the owner for a new one.',404);
     const n=await db.prepare('SELECT COUNT(*) AS n FROM members WHERE circle_id=?').bind(id).first();
     if(n.n>=30&&!await db.prepare('SELECT 1 FROM members WHERE circle_id=? AND user_id=?').bind(id,user.id).first())throw new Problem('WARDROBE_FULL','This wardrobe has reached its 30-member limit.',409);
-    await db.prepare('INSERT OR IGNORE INTO members(circle_id,user_id,display_name,joined_at) VALUES(?,?,?,?)').bind(id,user.id,user.name,Date.now()).run();return json({id});
+    await db.prepare(`INSERT OR IGNORE INTO members(circle_id,user_id,display_name,joined_at)
+      SELECT c.id,?,?,? FROM circles c WHERE c.id=? AND c.invite_hash=? AND (SELECT COUNT(*) FROM members WHERE circle_id=c.id)<30`).bind(user.id,user.name,Date.now(),id,await digest(invite)).run();
+    if(!await db.prepare('SELECT 1 FROM circles c JOIN members m ON m.circle_id=c.id WHERE c.id=? AND c.invite_hash=? AND m.user_id=?').bind(id,await digest(invite),user.id).first()){
+      const valid=await db.prepare('SELECT 1 FROM circles WHERE id=? AND invite_hash=?').bind(id,await digest(invite)).first();
+      if(!valid)throw new Problem('INVITE_INVALID','This invitation is no longer valid. Ask the owner for a new one.',404);
+      throw new Problem('WARDROBE_FULL','This wardrobe has reached its 30-member limit.',409);
+    }
+    return json({id});
   }
   let match;
+  if(path==='/api/saved'&&method==='GET')return json({pieces:await savedPieces(db,user)});
+  if((match=/^\/api\/saved\/([^/]+)$/.exec(path))&&['PUT','DELETE'].includes(method))return json(await savePiece(db,user,key(match[1]),method==='DELETE'));
+  if((match=/^\/api\/tryons\/([^/]+)\/review$/.exec(path))&&['GET','PUT'].includes(method))return json({review:await previewReview(db,user,key(match[1]),method==='PUT'?await readJSON(request,4000):undefined)});
+  if((match=/^\/api\/tryons\/([^/]+)\/receipt$/.exec(path))&&method==='GET')return json(await reviewReceipt(db,user,key(match[1])),200,{'Content-Disposition':'attachment; filename="wearrove-preview-review.json"'});
   if((match=/^\/api\/circles\/([^/]+)$/.exec(path))&&method==='GET'){
     const c=await member(db,key(match[1]),user.id);const {invite_hash,...publicCircle}=c;
     const garments=(await rows(db,`SELECT ${fields} FROM garments g WHERE g.circle_id=? ${c.owner_id===user.id?'':'AND archived=0'} ORDER BY g.created_at DESC`,c.id)).map(toGarment);
@@ -164,7 +176,7 @@ async function api(request,env,ctx){
   if((match=/^\/api\/tryons\/([^/]+)(\/image)?$/.exec(path))){
     const row=await db.prepare('SELECT * FROM tryon_jobs WHERE id=? AND user_id=?').bind(key(match[1]),user.id).first();if(!row)throw new Problem('NOT_FOUND','This private preview could not be found.',404);
     if(method==='DELETE'&&!match[2]){
-      await db.batch([db.prepare("UPDATE tryon_jobs SET status='cancelled' WHERE id=?").bind(row.id),db.prepare('DELETE FROM result_chunks WHERE job_id=?').bind(row.id)]);
+      await db.batch([db.prepare("UPDATE tryon_jobs SET status='cancelled' WHERE id=?").bind(row.id),db.prepare('DELETE FROM result_chunks WHERE job_id=?').bind(row.id),db.prepare('DELETE FROM preview_reviews WHERE job_id=?').bind(row.id)]);
       ctx.waitUntil(deleteProvider(env,row));return json({ok:true});
     }
     if(method==='GET'&&match[2]){
@@ -179,8 +191,9 @@ async function api(request,env,ctx){
   if(path==='/api/export'&&method==='GET'){
     const circles=await rows(db,'SELECT c.id,c.title,c.care_days,c.rules,c.is_example FROM circles c JOIN members m ON m.circle_id=c.id WHERE m.user_id=?',user.id);
     const loans=await rows(db,'SELECT l.id,g.title,l.start_date,l.end_date,l.status,l.borrower_note,l.owner_note,l.actual_return_date FROM loans l JOIN garments g ON g.id=l.garment_id JOIN circles c ON c.id=l.circle_id WHERE l.borrower_id=? OR c.owner_id=? ORDER BY l.created_at DESC',user.id,user.id);
-    if(url.searchParams.get('format')==='csv')return new Response(['Piece,Collection,Return,Status,Actual return',...loans.map(l=>[l.title,l.start_date,l.end_date,l.status,l.actual_return_date].map(csvCell).join(','))].join('\r\n'),{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="borrowloom-borrowing.csv"','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
-    return json({exported_at:new Date().toISOString(),user,circles,loans},200,{'Content-Disposition':'attachment; filename="borrowloom-records.json"'});
+    if(url.searchParams.get('format')==='csv')return new Response(['Piece,Collection,Return,Status,Actual return',...loans.map(l=>[l.title,l.start_date,l.end_date,l.status,l.actual_return_date].map(csvCell).join(','))].join('\r\n'),{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="wearrove-borrowing.csv"','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+    const saved=(await savedPieces(db,user)).map(({photo_url,...piece})=>piece);const reviews=await rows(db,"SELECT r.job_id,r.decision,r.face_checked,r.garment_checked,r.colour_checked,r.notes,r.updated_at FROM preview_reviews r JOIN tryon_jobs j ON j.id=r.job_id WHERE r.user_id=? AND j.expires_at>? AND j.status='succeeded'",user.id,Date.now());
+    return json({exported_at:new Date().toISOString(),user,circles,loans,saved_pieces:saved,preview_reviews:reviews},200,{'Content-Disposition':'attachment; filename="wearrove-records.json"'});
   }
   throw new Problem('NOT_FOUND','That page or action could not be found.',404);
 }
@@ -194,7 +207,7 @@ export default {
       if(/GARMENT_UNAVAILABLE/.test(message))return json({error:{code:'GARMENT_UNAVAILABLE',message:'This piece is no longer available.'}},409);
       if(/MEMBERSHIP_REQUIRED/.test(message))return json({error:{code:'MEMBERSHIP_REQUIRED',message:'Your membership has changed. Ask the owner for access.'}},403);
       // Log only a random diagnostic reference. Photos, invitation keys, provider URLs and request bodies never enter logs.
-      const reference=crypto.randomUUID();console.error('Borrowloom request failed',reference,e?.name||'Error');
+      const reference=crypto.randomUUID();console.error('Wearrove request failed',reference,e?.name||'Error');
       return json({error:{code:'INTERNAL_ERROR',message:'Something went wrong. Please reload and try again.',reference}},500);
     }
   },
