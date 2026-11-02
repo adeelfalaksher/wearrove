@@ -1,14 +1,16 @@
 # Borrowloom
 
-### Good pieces deserve another occasion.
+### Try it on. Borrow from friends.
 
 [Open Borrowloom](https://borrowloom.vercel.app/) · [Borrowing guide](https://borrowloom.vercel.app/guide) · [Verification record](docs/VERIFICATION.md)
 
 Borrowloom is an invitation-only wardrobe for friends sharing occasionwear. It combines real borrowing dates and owner-controlled handovers with an optional private **YouCam clothing v4** visual preview.
 
-![A shared rail with a burgundy dress, navy jacket and ivory blouse](public/assets/hero.png)
+![A shared rail with a burgundy dress, navy jacket and ivory blouse](public/assets/hero-large.webp)
 
 **The useful part comes after the preview:** find a piece, read its actual measurements and condition, request a date window, receive the owner's approval, and track collection through actual return. Confirmed windows include a cleaning buffer. An overdue piece cannot silently become available again.
+
+See the [five-winner review and redesign decisions](docs/WINNER-REVIEW.md) for the product critique and visual references.
 
 ## Why this exists
 
@@ -20,14 +22,14 @@ Clothing-rental research identifies assortment, availability, trust and practica
 
 - Create an invitation-only wardrobe; add original garment photographs, size labels, actual measurements, condition and care instructions.
 - Join through a private invitation. Owners can replace links and remove a member after active requests are resolved.
-- Search and filter pieces; check inclusive borrowing dates with a fixed zero-to-three-day care buffer.
+- Choose dates from the homepage, check availability across a shared wardrobe, and carry the same window into a garment request. Search and category filters combine with actual availability and a fixed zero-to-three-day care buffer.
 - Send a request, confirm or decline it, record collection, and record the actual return. Every successful transition has an audit event.
 - Prevent overlapping confirmations in SQLite triggers, including adjacent cleaning time and overdue collection.
 - Use a private browser account with a display name, single-use recovery codes, session revocation and JSON/CSV exports.
 - Submit a consented portrait and garment to YouCam clothing v4, when the server credential is configured. Results are private to their initiating account, expire after 24 hours and can be deleted sooner.
 - Explore a clearly labelled example wardrobe with fictional garments. It offers no real physical inventory.
 
-**Integration status:** the provider adapter and its failure paths are implemented and tested with mocks. A live YouCam inference has **not yet been verified** because account activation is pending. Missing credentials explicitly disable preview; no image is fabricated or substituted. Borrowing remains independently usable.
+**Integration status:** the provider adapter and its failure paths are implemented and tested with mocks. A live YouCam inference has **not yet been verified** because the server credential has not yet been configured. The user reports obtaining an API key; it must be entered directly into encrypted server settings. Missing credentials explicitly disable preview; no image is fabricated or substituted. Borrowing remains independently usable.
 
 ## Architecture
 
@@ -101,10 +103,11 @@ Free-tier availability is subject to the providers' limits. This project does no
 
 ## Test and verification
 
-`npm test` currently runs **32 tests** against actual SQLite constraints and a D1-compatible adapter. Coverage includes:
+`npm test` currently runs **35 tests** against actual SQLite constraints and a D1-compatible adapter. Coverage includes:
 
 | Area | Evidence |
 | --- | --- |
+| Date discovery | At most four concurrent lookups, no partial success on failure, stale-window cancellation, shared browser/server validation |
 | Booking integrity | Overlapping approval, cleaning boundaries, early return, overdue hold, cross-wardrobe references |
 | Authorization | Separate identities, owner/member permissions, private output isolation, revocation |
 | Recovery | Single-use rotation, simultaneous claims, revocation of earlier sessions |

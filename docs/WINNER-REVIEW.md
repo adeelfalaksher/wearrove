@@ -53,4 +53,4 @@ Borrowloom already has a dedicated database and working server. No Supabase proj
 
 ## Evidence still required
 
-Production browser verification of the new controls, viewport review, live YouCam output with the user's configured key, and user testing remain distinct checks. No winning score, preview quality, avoided purchases or adoption rate is inferred from the winner review. The final image gallery and video remain a later approval phase.
+Production browser verification of the new controls and the 390/768/1440 px viewport review are recorded in [VERIFICATION.md](VERIFICATION.md). Live YouCam output with the user's configured key and user testing remain distinct checks. No winning score, preview quality, avoided purchases or adoption rate is inferred from the winner review. The final image gallery and video remain a later approval phase.
