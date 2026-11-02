@@ -13,3 +13,7 @@ Icons in `public/icons.svg` are Phosphor SVGs retrieved through Supericons. Sour
 > THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Design references are linked in `DESIGN.md`. Screens were studied for hierarchy, garment imagery, measurement disclosure and date selection, not copied into the application.
+
+## Display formats, 2 November 2026
+
+The four original PNG assets remain unchanged. For website display, Sharp generated 640 px WebP versions and versions at up to 1200 px without enlargement, using quality 86 and 88 respectively. Eight WebP variants total 409,294 bytes, compared with 8,391,125 bytes for the four original PNG files. This is an asset-size comparison, not a page-speed measurement. Original image URLs remain available for provider inputs. These derivatives are application assets, not a submission image gallery.
