@@ -2,6 +2,7 @@ import {$,$$,day,plusDay} from '../lib/ui.mjs';
 import {loanDates} from '/rules.mjs';
 
 export function mount(){
+  const resultSlider=$('#home-result-slider');if(resultSlider)resultSlider.oninput=()=>$('#home-result').style.setProperty('--position',resultSlider.value+'%');
   const looks={
     dress:{image:'dress-large.webp',name:'Burgundy satin dress',detail:'A wedding, a dinner, another occasion.'},
     jacket:{image:'jacket-large.webp',name:'Navy tailored blazer',detail:'For the interview or the evening after.'},

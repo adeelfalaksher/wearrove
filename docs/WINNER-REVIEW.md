@@ -22,7 +22,7 @@ The earlier first screen was an editorial slogan and an outfit photograph. It di
 
 There is a real product hypothesis worth testing: friends arranging an occasional garment loan need more than a generated picture. They need access to a known collection, the owner's measurements, genuinely available dates, cleaning time and an agreed handover. Existing rental and wardrobe products remain competition. A new name or a larger hero is not evidence of originality or adoption.
 
-## Changes implemented
+## Earlier redesign, since superseded
 
 - A literal first-screen explanation: try on clothes, borrow from friends. Separate real actions create a wardrobe or open the invitation form.
 - Interactive garment selection on the homepage. Illustrative assets are identified; they are not YouCam results or offered inventory.
@@ -33,7 +33,7 @@ There is a real product hypothesis worth testing: friends arranging an occasiona
 - A new neutral surface system, native sans-serif type, restrained red accent and clearer form, card, dialog and borrowing states.
 - Reduced-motion support and small interactions; no fake user totals, testimonials or conversion claims.
 
-## Visual references
+## Earlier visual references
 
 The [Templens](https://templens.com/) live search was restricted to free templates and returned 15 partial matches. Its MINNA preview describes a garment-led catalogue, product details and clear navigation. [MINNA's template listing](https://www.framer.com/marketplace/templates/minna/) was examined as a visual reference. We did not import Framer code, reuse template photographs, or represent a free listing as unrestricted rights to its assets.
 
@@ -54,3 +54,13 @@ Wearrove already has a dedicated database and working server. No Supabase projec
 ## Evidence still required
 
 Production browser verification of the new controls and the 390/768/1440 px viewport review are recorded in [VERIFICATION.md](VERIFICATION.md). Live YouCam output with the user's configured key and user testing remain distinct checks. No winning score, preview quality, avoided purchases or adoption rate is inferred from the winner review. The final image gallery and video remain a later approval phase.
+
+## Complete Wearrove redesign and winner-derived decisions
+
+The final redesign replaces the earlier palette and layered styles with one complete blue/ink/white surface system and a 12-page shell. Header, phone navigation, hero, date finder, collection links, fitting room, saved comparison, account, guide, About, privacy, borrowing states and footer share the same typography and interaction system. The user explicitly requested restrained glossy iOS surfaces; that instruction takes priority over a skill's generic no-glass preference. There are no invented customer logos or testimonials.
+
+Complete Mobbin flows were inspected, rather than isolated features: [Alta adding a look](https://mobbin.com/flows/3fc65be0-7df7-4582-9514-d299ab0cb402), [Vinted reserving](https://mobbin.com/flows/3acd4baa-1ee5-463e-b862-5deab834e205), [H&M item details](https://mobbin.com/flows/667b324b-2ead-4804-b8b0-adc1036d7a54) and [Urban Outfitters product flow](https://mobbin.com/flows/4620051a-988b-47f9-a997-ac0a877ad2dc). Templens returned no exact free clothing-rental/VTO template for the full query; its suggested [Cartelle](https://www.framer.com/marketplace/templates/cartelle/) landing, catalogue structure and footer were examined. No protected template code, images or Mobbin screenshots were copied into the application. This is an original full implementation, not a claimed template import.
+
+The strongest compatible winner lessons became one decision flow: private saved pieces and a measured-detail comparison; actual YouCam output with original/result controls; a human-entered detail review and receipt; and an owner-controlled borrowing workflow with quotas, state integrity and real errors. These do not reproduce KeepMe's automated fidelity detection, CASTING's coverage scoring, ShadeSpan's colour metric, Aloud's nonvisual beauty engine or ConfidFit's Shopify integration. Those capabilities are not claimed.
+
+The homepage now uses a labelled recorded real YouCam response with a native comparison slider. Current verification includes one live inference and private cross-member access checks. Physical fit, image quality across populations, adoption and impact remain unmeasured.
