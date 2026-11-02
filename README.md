@@ -31,7 +31,7 @@ Clothing-rental research identifies assortment, availability, trust and practica
 - Record a manual preview detail review, mark a concern or a usable visual reference, and export a private JSON review. This is a user observation, not an automatic identity-fidelity check.
 - Explore a clearly labelled example wardrobe with fictional garments. It offers no real physical inventory.
 
-**Integration status:** live YouCam clothing-v4 inference has been verified on production with the configured encrypted server credential. One two-unit task returned a 1024 × 1024 JPEG (120,642 bytes); the actual image and saved manual review were downloaded and checked. Re-uploading the same source reused that job. Another member of the same wardrobe could not access its image, review or receipt. The public homepage comparison is labelled as a recorded real API example, not fresh inference. Missing credentials, budget limits and upstream failures still fail explicitly; no output is fabricated.
+**Integration status:** live YouCam clothing-v4 inference has been verified on production with the configured encrypted server credential. One two-unit task returned a 1024 × 1024 JPEG (120,642 bytes); the actual image and saved manual review were downloaded and checked. Re-uploading the same source reused that job. A second live check on the canonical domain verified the example wardrobe’s server-loaded garment path and its matching private preview in Saved. Another member of the same wardrobe could not access its image, review or receipt. The public homepage comparison is labelled as a recorded real API example, not fresh inference. Missing credentials, budget limits and upstream failures still fail explicitly; no output is fabricated.
 
 ## See the actual preview
 
