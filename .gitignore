@@ -16,3 +16,4 @@ private/
 *.sqlite-wal
 
 wrangler.toml
+.taste-skill/
