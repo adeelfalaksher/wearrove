@@ -92,3 +92,9 @@ Use the connected browser to test both roles on the deployed site, mobile layout
 ## Concurrency boundaries
 
 Invitation joining checks the current invite digest and capacity inside the membership INSERT, preventing an in-flight old invitation from restoring a removed member. Preview reservation rechecks membership, garment version and archival state inside its transaction. Identical active inputs with distinct page keys are coalesced at that reservation boundary; only the winning job receives a unit reservation and starts inference.
+
+## Worker fetch compatibility and observability
+
+Every outbound server fetch uses `redirect: manual`, the supported Cloudflare mode, with explicit or non-success redirect rejection. No API credential follows a redirect or reaches signed storage. Fixed stage/reason labels and elapsed time diagnose connections without raw exceptions, images, bodies or task IDs. Private operational budget logs contain only unit/cap numbers. Invocation logging is disabled; query-string redaction is configured in production.
+
+The public homepage comparison reads two static, attributed reference assets and changes a native range's CSS reveal position. It does not send a portrait, use a private endpoint or consume an API unit. The result asset is the exact successful live clothing-v4 response generated from the documented example portrait and this project's fictional blazer. Private user outputs remain exclusively behind account-bound endpoints.

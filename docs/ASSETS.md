@@ -21,3 +21,7 @@ The four original PNG assets remain unchanged. For website display, Sharp genera
 ## Locally served documentation sample
 
 `public/assets/youcam-example.jpg` is an unchanged copy of the documented YouCam clothing example portrait linked above, obtained through the browser from that official source. It is identified as an example in the interface. The sample button loads it from the application’s own origin, then applies the same browser normalization and consented request path as a user upload. The application’s private generated results are not public marketing assets.
+
+## Recorded YouCam result
+
+`youcam-blazer-result.jpg` is the exact 120,642-byte, 1024 × 1024 JPEG downloaded from the successful live clothing-v4 task on 2 November 2026. Its inputs were YouCam’s documented example portrait and this project’s fictional navy blazer. The homepage labels it as a recorded example; its slider does not run a fresh inference. It contains no user-submitted portrait, session, provider URL, invitation or recovery credential. Private user outputs are never promoted to this public example. It is an application reference asset, separate from the final submission gallery.

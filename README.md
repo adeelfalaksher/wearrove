@@ -31,7 +31,15 @@ Clothing-rental research identifies assortment, availability, trust and practica
 - Record a manual preview detail review, mark a concern or a usable visual reference, and export a private JSON review. This is a user observation, not an automatic identity-fidelity check.
 - Explore a clearly labelled example wardrobe with fictional garments. It offers no real physical inventory.
 
-**Integration status:** the provider adapter and its failure paths are implemented and tested with mocks. A live YouCam inference has **not yet been verified** until the newly configured encrypted server credential has passed a real task. Missing credentials explicitly disable preview; no image is fabricated or substituted. Borrowing remains independently usable.
+**Integration status:** live YouCam clothing-v4 inference has been verified on production with the configured encrypted server credential. One two-unit task returned a 1024 × 1024 JPEG (120,642 bytes); the actual image and saved manual review were downloaded and checked. Re-uploading the same source reused that job. Another member of the same wardrobe could not access its image, review or receipt. The public homepage comparison is labelled as a recorded real API example, not fresh inference. Missing credentials, budget limits and upstream failures still fail explicitly; no output is fabricated.
+
+## See the actual preview
+
+| Documented example portrait | Recorded real YouCam result |
+| --- | --- |
+| <img src="public/assets/youcam-example.jpg" width="280" alt="Documented YouCam example portrait"> | <img src="public/assets/youcam-blazer-result.jpg" width="280" alt="Actual clothing-v4 result with the fictional navy blazer"> |
+
+This recorded two-unit response is also available in the [homepage comparison](https://wearrove.vercel.app/). It is a visual illustration, not a fit or identity-fidelity benchmark. Private user photographs and generated results are not public example assets.
 
 ## Architecture
 
@@ -144,7 +152,7 @@ docs/               Product, technical, design and research decisions
 
 Wearrove coordinates people who already know each other. It does not verify identities or garment ownership, arbitrate damage, establish physical fit, charge deposits, handle shipping, or guarantee availability outside the recorded handover process. Full account deletion is not yet automated. Invitations and recovery codes are private bearer capabilities; anyone holding one has its corresponding access. Generated result access expires after 24 hours; provider-side deletion is requested and retried, not independently guaranteed.
 
-The build has no measured user adoption or garment-borrowing impact study. Judge materials must distinguish observed behavior from future product plans. Live YouCam result verification remains an explicit release gate. Event registration and a named draft are now complete.
+The build has no measured user adoption or garment-borrowing impact study. Judge materials must distinguish observed behavior from future product plans. Event registration and a named Devpost draft are complete. Final media and submission remain a separately approved phase.
 
 ## Contribute
 

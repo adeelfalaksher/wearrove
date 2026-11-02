@@ -1,6 +1,6 @@
 # Wearrove research and decision record
 
-Research date: 30 October 2026. This is a new project for the YouCam API Skin AI & eCommerce VTO Hackathon. No existing Adeel project is reused or modified.
+Initial research: 30 October 2026. Rechecked 2 November 2026. This is a new project for the YouCam API Skin AI & eCommerce VTO Hackathon. No existing Adeel project is reused or modified.
 
 ## Competition requirements
 
@@ -57,4 +57,4 @@ The [sponsor's account of prior winners](https://www.perfectcorp.com/business/ne
 
 On this research date, the connected Supabase organization has two active projects on its free plan. They are unrelated and will not be repurposed. A dedicated D1 database and Worker avoid changing those projects. Vercel will serve the website and proxy its API to the Worker.
 
-The cloud-browser Devpost form has Apparel VTO selected, but its remaining registration values are empty. The YouCam account flow displays a Terms-of-Use agreement before continuing. Neither registration nor API activation has been claimed complete.
+Historical access blockers were resolved by the user. As of 2 November, event registration and a named Wearrove draft exist. The encrypted API key has passed live authentication, pricing, file uploads, clothing-v4 inference, result download and provider-deletion acknowledgement. Production browser results and remaining limits are recorded in VERIFICATION.md.
