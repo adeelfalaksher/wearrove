@@ -8,7 +8,7 @@
 
 **Source:** https://github.com/adeelfalaksher900-creator/borrowloom
 
-**Draft status:** Not submitted. Provider account activation and live inference verification remain release gates. Final screenshots and the public 1–3 minute video are reserved for the separately approved media phase.
+**Draft status:** Text prepared here; not yet saved in Devpost. Event registration is incomplete and blocks project creation. Provider account activation and live inference verification remain release gates. Final screenshots and the public 1–3 minute video are reserved for the separately approved media phase.
 
 ## Inspiration
 
