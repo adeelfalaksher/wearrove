@@ -3,9 +3,9 @@ import {loanDates} from '/rules.mjs';
 
 export function mount(){
   const looks={
-    dress:{image:'dress.png',name:'Burgundy satin dress',detail:'A wedding, a dinner, another occasion.'},
-    jacket:{image:'jacket.png',name:'Navy tailored blazer',detail:'For the interview or the evening after.'},
-    blouse:{image:'blouse.png',name:'Ivory pleated blouse',detail:'Something different, already in a friend’s wardrobe.'}
+    dress:{image:'dress-large.webp',name:'Burgundy satin dress',detail:'A wedding, a dinner, another occasion.'},
+    jacket:{image:'jacket-large.webp',name:'Navy tailored blazer',detail:'For the interview or the evening after.'},
+    blouse:{image:'blouse-large.webp',name:'Ivory pleated blouse',detail:'Something different, already in a friend’s wardrobe.'}
   };
   $$('[data-look]').forEach(button=>button.addEventListener('click',()=>{
     const look=looks[button.dataset.look];if(!look)return;
