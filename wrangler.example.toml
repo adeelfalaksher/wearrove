@@ -12,11 +12,19 @@ database_id = "REPLACE_WITH_YOUR_OWN_D1_DATABASE_ID"
 SITE_ORIGINS = "https://YOUR_SITE.vercel.app"
 ASSET_ORIGIN = "https://YOUR_SITE.vercel.app"
 YOUCAM_MAX_TASK_UNITS = "2"
-YOUCAM_MIN_BALANCE = "500"
-YOUCAM_TOTAL_BUDGET = "200"
-YOUCAM_DAILY_BUDGET = "30"
+YOUCAM_MIN_BALANCE = "20"
+YOUCAM_TOTAL_BUDGET = "20"
+YOUCAM_DAILY_BUDGET = "10"
 
 [triggers]
 crons = ["0 * * * *"]
 
 # Set YOUCAM_API_KEY using the provider's encrypted secret facility.
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+invocation_logs = false

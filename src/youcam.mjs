@@ -13,8 +13,17 @@ function storageURL(value) {
 }
 
 async function request(env,path,body,timeout=18000) {
-  let r;
-  try{r=await (env.FETCH||fetch)(BASE+path,{method:body===undefined?'GET':'POST',headers:{Authorization:'Bearer '+env.YOUCAM_API_KEY,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(timeout),redirect:'error'});}catch{throw new Problem('PROVIDER_CONNECTION','The preview service did not respond in time. No replacement task will be started automatically.',502);}
+  let r;const started=Date.now(),stage=path.includes('/client/credit')?'balance':path.includes('/feature-cost')?'cost':path.endsWith('/file')?'upload-registration':path.endsWith('/task/delete')?'deletion':path===TASK?'creation':'status';
+  try{r=await (env.FETCH||fetch)(BASE+path,{method:body===undefined?'GET':'POST',headers:{Authorization:'Bearer '+env.YOUCAM_API_KEY,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(timeout),redirect:'manual'});}catch(error){
+    const message=String(error?.message||'').toLowerCase(),reason=['redirect','dns','ssl','tls','socket','network'].find(word=>message.includes(word))||'connection',timedOut=['AbortError','TimeoutError'].includes(error?.name);
+    // Only fixed stage/reason labels and elapsed time are logged. Never log a
+    // credential, request body, portrait, task identifier or raw exception.
+    console.warn('Wearrove provider connection',{stage,reason:timedOut?'timeout':reason,elapsed_ms:Date.now()-started});
+    throw new Problem(timedOut?'PROVIDER_TIMEOUT':'PROVIDER_CONNECTION',timedOut?'The preview service did not respond in time. No replacement task will be started automatically.':'A connection to the preview service could not be established. No replacement task will be started automatically.',502);
+  }
+  // Workers supports manual/follow, not the Fetch-standard error mode. Reject
+  // every redirect explicitly so Bearer credentials never follow another host.
+  if(r.status>=300&&r.status<400)throw new Problem('PROVIDER_REDIRECT','The preview service returned an unsupported redirect. Please try later.',502);
   let data;try{data=await r.json();}catch{throw new Problem('PROVIDER_RESPONSE','The preview service returned an unreadable response.',502);}
   if(!r.ok||Number(data.status)>=400)throw new Problem(r.status===401?'PROVIDER_AUTH':'PROVIDER_ERROR','The preview service could not complete this request. Please try later.',502);
   return data;
@@ -36,8 +45,8 @@ export async function priceAndBalance(env) {
   }
   const costs=found.map(x=>Number(x.amount));
   if(!costs.length||costs.some(x=>!Number.isInteger(x)||x<=0)||new Set(costs).size!==1)throw new Problem('PROVIDER_PRICE','The preview service could not confirm an unambiguous task cost.',503);
-  const cost=costs[0],maximum=Number(env.YOUCAM_MAX_TASK_UNITS||2),minimum=Number(env.YOUCAM_MIN_BALANCE||500);
-  if(cost>maximum||spendable-cost<minimum)throw new Problem('PREVIEW_BUDGET','Virtual previews have reached the available free-unit budget. Borrowing features remain available.',503);
+  const cost=costs[0],maximum=Number(env.YOUCAM_MAX_TASK_UNITS||2),minimum=Number(env.YOUCAM_MIN_BALANCE||20);
+  if(cost>maximum||spendable-cost<minimum){console.warn('Wearrove preview budget',{cost,spendable,minimum,maximum});throw new Problem('PREVIEW_BUDGET','Virtual previews have reached the available free-unit budget. Borrowing features remain available.',503);}
   return {cost,spendable,minimum};
 }
 
@@ -51,7 +60,7 @@ async function boundedBytes(response,limit=6000000) {
 }
 
 async function publicInput(env,url) {
-  let r;try{r=await (env.FETCH||fetch)(url,{redirect:'error',signal:AbortSignal.timeout(18000)});}catch{throw new Problem('IMAGE_DOWNLOAD','The example photograph is not available right now.',502);}
+  let r;try{r=await (env.FETCH||fetch)(url,{redirect:'manual',signal:AbortSignal.timeout(18000)});}catch{throw new Problem('IMAGE_DOWNLOAD','The example photograph is not available right now.',502);}
   return validateImage(await boundedBytes(r,5000000),5000000);
 }
 
@@ -68,7 +77,7 @@ async function upload(env,image,name) {
   const headers=new Headers();
   for(const [key,value] of Object.entries(put.headers||{}))if(['content-type','content-length','x-amz-server-side-encryption','x-amz-acl'].includes(key.toLowerCase()))headers.set(key,String(value));
   headers.set('Content-Type',image.type);
-  let r;try{r=await (env.FETCH||fetch)(url,{method:'PUT',headers,body:image.bytes,redirect:'error',signal:AbortSignal.timeout(22000)});}catch{throw new Problem('PROVIDER_UPLOAD','The image upload did not finish. No new preview was created.',502);}
+  let r;try{r=await (env.FETCH||fetch)(url,{method:'PUT',headers,body:image.bytes,redirect:'manual',signal:AbortSignal.timeout(22000)});}catch{throw new Problem('PROVIDER_UPLOAD','The image upload did not finish. No new preview was created.',502);}
   if(!r.ok)throw new Problem('PROVIDER_UPLOAD','The image upload was rejected. No new preview was created.',502);
   return file.file_id;
 }
@@ -101,7 +110,7 @@ export async function startPreview(env,user,garment,input,photo) {
       AND (SELECT COUNT(*) FROM tryon_jobs WHERE user_id=? AND created_at>?)<8
       AND ?>=?+?+COALESCE((SELECT SUM(cost) FROM tryon_jobs WHERE status IN ('reserved','uploading','submitted','running','paused','uncertain')),0)
       AND EXISTS(SELECT 1 FROM garments g JOIN members m ON m.circle_id=g.circle_id WHERE g.id=? AND g.version=? AND g.archived=0 AND m.user_id=?)
-      AND NOT EXISTS(SELECT 1 FROM tryon_jobs WHERE user_id=? AND garment_id=? AND garment_version=? AND input_digest=? AND expires_at>? AND status IN ('reserved','uploading','submitted','running','paused','uncertain','succeeded'))`).bind(id,user.id,garment.id,garment.version,garment.title,idempotency,inputDigest,cost,now,now+86400000,day,cost,Number(env.YOUCAM_TOTAL_BUDGET||200),cost,Number(env.YOUCAM_DAILY_BUDGET||30),user.id,now-86400000,spendable,minimum,cost,garment.id,garment.version,user.id,user.id,garment.id,garment.version,inputDigest,now),
+      AND NOT EXISTS(SELECT 1 FROM tryon_jobs WHERE user_id=? AND garment_id=? AND garment_version=? AND input_digest=? AND expires_at>? AND status IN ('reserved','uploading','submitted','running','paused','uncertain','succeeded'))`).bind(id,user.id,garment.id,garment.version,garment.title,idempotency,inputDigest,cost,now,now+86400000,day,cost,Number(env.YOUCAM_TOTAL_BUDGET||20),cost,Number(env.YOUCAM_DAILY_BUDGET||10),user.id,now-86400000,spendable,minimum,cost,garment.id,garment.version,user.id,user.id,garment.id,garment.version,inputDigest,now),
     env.DB.prepare("UPDATE budgets SET units=units+? WHERE key IN ('total',?) AND EXISTS(SELECT 1 FROM tryon_jobs WHERE id=?)").bind(cost,day,id)
   ]); } catch (e) {
     const duplicate=await env.DB.prepare('SELECT * FROM tryon_jobs WHERE user_id=? AND idempotency_key=?').bind(user.id,idempotency).first();
@@ -173,7 +182,7 @@ export async function pollPreview(env,row,manual=false) {
     if(!data||typeof data.task_status!=='string')throw new Problem('PROVIDER_RESPONSE','The preview status could not be read.',502);
     if(data.task_status==='success'){
       const resultURL=storageURL(data.results?.url);
-      const response=await (env.FETCH||fetch)(resultURL,{signal:AbortSignal.timeout(22000),redirect:'error'});
+      const response=await (env.FETCH||fetch)(resultURL,{signal:AbortSignal.timeout(22000),redirect:'manual'});
       const bytes=await boundedBytes(response);const type=imageInfo(bytes).type;
       const statements=[env.DB.prepare("DELETE FROM result_chunks WHERE job_id=? AND EXISTS(SELECT 1 FROM tryon_jobs WHERE id=? AND status IN ('submitted','running'))").bind(row.id,row.id)];
       for(let i=0;i<bytes.length;i+=250000)statements.push(env.DB.prepare("INSERT INTO result_chunks(job_id,part,bytes) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM tryon_jobs WHERE id=? AND status IN ('submitted','running') AND expires_at>?)").bind(row.id,i/250000,bytes.slice(i,i+250000),row.id,Date.now()));

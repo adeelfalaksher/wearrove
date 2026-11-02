@@ -88,7 +88,7 @@ To try live inference locally, set `YOUCAM_API_KEY` in your shell before running
 
 The original portrait is not stored in D1. Browser uploads are decoded, resized and re-encoded before transmission. The server performs bounded-format/dimension checks; it is not a full image decoder. A generated result is an illustration, not a physical-fit, colour-accuracy or medical assessment.
 
-Default safeguards: at most 2 units per accepted SKU, a 500-unit balance reserve, 200 total reserved units, 30 per day, and 8 requests per account per day. These are application ceilings, **not a statement of current free credits**. Failed or ambiguous tasks conservatively consume their reservation; they are not automatically retried as new tasks.
+Default safeguards: at most 2 units per accepted SKU, a 20-unit balance reserve, 20 total reserved units, 10 per day, and 8 requests per account per day. These are application ceilings, **not a statement of current free credits**. Failed or ambiguous tasks conservatively consume their reservation; they are not automatically retried as new tasks.
 
 References: [clothing v4](https://docs.perfectcorp.com/reference/ai_clothes/v4.0), [API unit balance and costs](https://docs.perfectcorp.com/reference/unit_system), [hackathon resources](https://youcam-api-skin-ai-ecommerce.devpost.com/resources).
 
@@ -111,7 +111,7 @@ The deployed legacy Worker hostname and host-only session cookie remain compatib
 
 ## Test and verification
 
-`npm test` currently runs **44 tests** against actual SQLite constraints and a D1-compatible adapter. Coverage includes:
+`npm test` currently runs **49 tests** against actual SQLite constraints and a D1-compatible adapter. Coverage includes:
 
 | Area | Evidence |
 | --- | --- |
@@ -144,7 +144,7 @@ docs/               Product, technical, design and research decisions
 
 Wearrove coordinates people who already know each other. It does not verify identities or garment ownership, arbitrate damage, establish physical fit, charge deposits, handle shipping, or guarantee availability outside the recorded handover process. Full account deletion is not yet automated. Invitations and recovery codes are private bearer capabilities; anyone holding one has its corresponding access. Generated result access expires after 24 hours; provider-side deletion is requested and retried, not independently guaranteed.
 
-The build has no measured user adoption or garment-borrowing impact study. Judge materials must distinguish observed behavior from future product plans. Live YouCam verification and event registration remain explicit release gates.
+The build has no measured user adoption or garment-borrowing impact study. Judge materials must distinguish observed behavior from future product plans. Live YouCam result verification remains an explicit release gate. Event registration and a named draft are now complete.
 
 ## Contribute
 

@@ -11,7 +11,7 @@ const sqlite=new DatabaseSync(existsSync('.local/borrowloom.sqlite')?'.local/bor
 const d1=row=>row?Object.fromEntries(Object.entries(row).map(([k,v])=>[k,v instanceof Uint8Array?Array.from(v):v])):null;
 class Statement{constructor(sql,args=[]){this.sql=sql;this.args=args;}bind(...args){return new Statement(this.sql,args);}async first(){return d1(sqlite.prepare(this.sql).get(...this.args));}async all(){return {results:sqlite.prepare(this.sql).all(...this.args).map(d1)};}async run(){const r=sqlite.prepare(this.sql).run(...this.args);return {success:true,meta:{changes:Number(r.changes)}};}}
 const DB={prepare:s=>new Statement(s),async batch(statements){sqlite.exec('BEGIN');try{const r=[];for(const s of statements)r.push(await s.run());sqlite.exec('COMMIT');return r;}catch(e){sqlite.exec('ROLLBACK');throw e;}}};
-const env={DB,SITE_ORIGINS:origin,ASSET_ORIGIN:origin,YOUCAM_API_KEY:process.env.YOUCAM_API_KEY,YOUCAM_MIN_BALANCE:process.env.YOUCAM_MIN_BALANCE||500};
+const env={DB,SITE_ORIGINS:origin,ASSET_ORIGIN:origin,YOUCAM_API_KEY:process.env.YOUCAM_API_KEY,YOUCAM_MIN_BALANCE:process.env.YOUCAM_MIN_BALANCE||20};
 const types={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp'};
 createServer(async(req,res)=>{try{
   const url=new URL(req.url,origin);

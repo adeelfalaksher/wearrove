@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {env} from './support/database.mjs';
 import {png} from './support/images.mjs';
-import {startPreview,pollPreview,cleanup} from '../src/youcam.mjs';
+import {startPreview,pollPreview,cleanup,priceAndBalance} from '../src/youcam.mjs';
 function setup(){
   const e=env(),db=e.DB.sqlite,user={id:crypto.randomUUID(),name:'Owner'},cid=crypto.randomUUID(),gid=crypto.randomUUID(),photo={bytes:png(),type:'image/png'};
   db.prepare('INSERT INTO users(id,name,created_at) VALUES(?,?,0)').run(user.id,user.name);
@@ -12,6 +12,7 @@ function setup(){
   const g={id:gid,version:1,title:'Blazer',category:'outer',photo:Array.from(photo.bytes)};
   let taskCalls=0,fileCalls=0;const signedHeaders=[],deletions=[];
   e.YOUCAM_API_KEY='test-only';e.FETCH=async(url,options={})=>{
+    assert.equal(options.redirect,'manual','Cloudflare requires manual redirects; credentials and images must not follow redirects');
     if(url.includes('/client/credit'))return Response.json({results:[{type:'ApiFree',amount:1000}]});
     if(url.includes('/credit/feature-cost'))return Response.json({result:{skus:[{run_task_url:'/s2s/v2.0/task/cloth-v4',amount:2}]}});
     if(url.endsWith('/file'))return Response.json({data:{files:[{file_id:'file-'+(++fileCalls),requests:[{method:'PUT',url:'https://yce-task.s3.us-west-2.amazonaws.com/upload?x='+fileCalls,headers:{'Content-Type':'image/png'}}]}]}});
@@ -24,6 +25,20 @@ function setup(){
   };
   return {e,db,user,g,photo,input:{idempotency_key:crypto.randomUUID()},signedHeaders,deletions,get taskCalls(){return taskCalls;}};
 }
+test('preflight distinguishes a connection failure from a deadline without logging secrets',async t=>{
+  const warning=t.mock.method(console,'warn',()=>{}),secret='private-test-only-credential';
+  for(const [error,code] of [[new TypeError('network connection lost: '+secret),'PROVIDER_CONNECTION'],[new DOMException(secret,'TimeoutError'),'PROVIDER_TIMEOUT']]){
+    await assert.rejects(priceAndBalance({YOUCAM_API_KEY:secret,FETCH:async()=>{throw error;}}),e=>e.code===code);
+  }
+  const logs=JSON.stringify(warning.mock.calls.map(c=>c.arguments));assert.equal(logs.includes(secret),false);assert.match(logs,/balance/);assert.match(logs,/timeout/);
+});
+test('preflight rejects a redirect before parsing a plausible balance body or sending another authenticated request',async()=>{
+  let calls=0;await assert.rejects(priceAndBalance({YOUCAM_API_KEY:'test-only',FETCH:async(url,options)=>{calls++;assert.equal(options.redirect,'manual');return Response.json({results:[{type:'ApiFree',amount:1000}]},{status:307,headers:{Location:'https://untrusted.test/credit'}});}}),e=>e.code==='PROVIDER_REDIRECT');assert.equal(calls,1);
+});
+test('signed upload redirects stop before task creation and receive no provider credential',async()=>{
+  const f=setup(),original=f.e.FETCH;f.e.FETCH=async(url,options)=>{if(options.method==='PUT'){assert.equal(options.redirect,'manual');assert.equal(new Headers(options.headers).has('Authorization'),false);return new Response(null,{status:307,headers:{Location:'https://untrusted.test/upload'}});}return original(url,options);};
+  const j=await startPreview(f.e,f.user,f.g,f.input,f.photo);assert.equal(j.status,'error');assert.equal(j.error_code,'PROVIDER_UPLOAD');assert.equal(f.taskCalls,0);f.e.DB.close();
+});
 test('provider protocol creates one task on retries, never forwards API authorization to signed storage, and stores bounded private bytes',async()=>{
   const f=setup();const j=await startPreview(f.e,f.user,f.g,f.input,f.photo);assert.equal(j.status,'submitted');
   const repeat=await startPreview(f.e,f.user,f.g,f.input,f.photo);assert.equal(repeat.id,j.id);assert.equal(f.taskCalls,1);
