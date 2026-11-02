@@ -8,7 +8,7 @@
 
 **Source:** https://github.com/adeelfalaksher900-creator/wearrove
 
-**Draft:** Wearrove, submission 1278478. Overview saved. The following story is the source for the Project details field. Final screenshots, the public 1–3-minute video and final submission remain a separate approval phase.
+**Draft:** Wearrove, submission 1278478, saved as DRAFT (3/5 steps). The 6,799-character story was reopened and checked after removing Devpost’s auto-inserted empty heading template. Seven technology tags, the canonical website/source links, required additional description and technical feedback are saved. The validated source archive `wearrove-source-20261102.zip` appears as Current File. Special-award eligibility is not invented. Final thumbnail/screenshots, the public 1–3-minute video and final submission remain a separate approval phase.
 
 ## Inspiration
 
